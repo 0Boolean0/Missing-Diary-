@@ -64,7 +64,7 @@ export async function createCase(req, res, next) {
     const created = result.rows[0];
     const files = req.files || [];
     for (const f of files) {
-      const uploaded = await uploadBufferToCloudinary(f.buffer, 'safe-return/missing-persons');
+      const uploaded = await uploadBufferToCloudinary(f.buffer, 'missing-diary/missing-persons');
       await query('INSERT INTO person_images (missing_person_id,image_url,public_id) VALUES ($1,$2,$3)', [created.id, uploaded.secure_url, uploaded.public_id]);
     }
     res.status(201).json(created);

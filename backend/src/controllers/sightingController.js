@@ -16,7 +16,7 @@ export async function createSighting(req, res, next) {
     const data = sightingSchema.parse(req.body);
     let imageUrl = null;
     if (req.file) {
-      const uploaded = await uploadBufferToCloudinary(req.file.buffer, 'safe-return/sightings');
+      const uploaded = await uploadBufferToCloudinary(req.file.buffer, 'missing-diary/sightings');
       imageUrl = uploaded.secure_url;
     }
     const result = await query(`INSERT INTO sightings

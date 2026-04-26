@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Navbar() {
   const { user, logout } = useAuth();
   return <header className="navbar">
-    <Link to="/" className="brand">🛡️ SafeReturn</Link>
+    <Link to="/" className="brand">🛡️ Missing Diary</Link>
     <nav>
       <Link to="/">Home</Link>
       <a href="/#cases">Missing Cases</a>

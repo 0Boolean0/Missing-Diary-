@@ -17,7 +17,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', cred
 app.use(express.json({ limit: '1mb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
-app.get('/health', (req, res) => res.json({ ok: true, app: 'SafeReturn API' }));
+app.get('/health', (req, res) => res.json({ ok: true, app: 'Missing Diary API' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/sightings', sightingRoutes);
