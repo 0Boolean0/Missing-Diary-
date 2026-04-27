@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TABLE IF EXISTS audit_logs, police_updates, sightings, person_images, missing_persons, users CASCADE;
+DROP TABLE IF EXISTS audit_logs, police_updates, sightings, person_videos, person_images, missing_persons, users CASCADE;
 
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -17,10 +17,14 @@ CREATE TABLE missing_persons (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   guardian_id UUID REFERENCES users(id) ON DELETE SET NULL,
   name VARCHAR(120) NOT NULL,
+  name_bn VARCHAR(120),
   age INT,
   gender VARCHAR(40),
+  skin_color VARCHAR(40),
   height VARCHAR(40),
+  weight VARCHAR(40),
   clothing TEXT,
+  identifying_marks TEXT,
   medical_info TEXT,
   description TEXT,
   last_seen_location TEXT NOT NULL,
@@ -37,6 +41,16 @@ CREATE TABLE person_images (
   missing_person_id UUID REFERENCES missing_persons(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   public_id TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE person_videos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  missing_person_id UUID REFERENCES missing_persons(id) ON DELETE CASCADE,
+  video_url TEXT NOT NULL,
+  storage_path TEXT,
+  file_size BIGINT,
+  mime_type VARCHAR(50),
   created_at TIMESTAMP DEFAULT NOW()
 );
 

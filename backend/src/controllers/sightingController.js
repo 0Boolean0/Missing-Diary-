@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { query } from '../config/db.js';
-import { uploadBufferToCloudinary } from '../utils/cloudinaryUpload.js';
+import { uploadBufferToStorage } from '../utils/storageUpload.js';
 
 const sightingSchema = z.object({
   missing_person_id: z.string().uuid(),
@@ -16,8 +16,8 @@ export async function createSighting(req, res, next) {
     const data = sightingSchema.parse(req.body);
     let imageUrl = null;
     if (req.file) {
-      const uploaded = await uploadBufferToCloudinary(req.file.buffer, 'missing-diary/sightings');
-      imageUrl = uploaded.secure_url;
+      const { url } = await uploadBufferToStorage(req.file.buffer, req.file.mimetype, 'sightings');
+      imageUrl = url;
     }
     const result = await query(`INSERT INTO sightings
       (missing_person_id,reported_by,location_text,lat,lng,description,image_url,confidence_level,status)

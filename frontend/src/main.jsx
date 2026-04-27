@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import './styles.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LangProvider } from './context/LangContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -19,18 +20,20 @@ function Protected({ children }) {
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/cases/:id" element={<CaseDetails />} />
-          <Route path="/sighting/:id?" element={<Protected><SubmitSighting /></Protected>} />
-          <Route path="/report" element={<Protected><ReportCase /></Protected>} />
-          <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <LangProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/cases/:id" element={<CaseDetails />} />
+            <Route path="/sighting/:id?" element={<Protected><SubmitSighting /></Protected>} />
+            <Route path="/report" element={<Protected><ReportCase /></Protected>} />
+            <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </LangProvider>
   </React.StrictMode>
 );
