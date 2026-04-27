@@ -16,6 +16,20 @@ export async function requireAuth(req, res, next) {
   }
 }
 
+// Optional auth — sets req.user if token present, but allows anonymous requests
+export async function optionalAuth(req, res, next) {
+  try {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const result = await query('SELECT id,name,email,role,verified FROM users WHERE id=$1', [decoded.id]);
+      if (result.rows[0]) req.user = result.rows[0];
+    }
+  } catch { /* ignore invalid tokens for anonymous */ }
+  next();
+}
+
 export function requireRole(...roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) return res.status(403).json({ message: 'Forbidden' });
