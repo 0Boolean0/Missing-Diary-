@@ -16,6 +16,11 @@ CREATE TABLE users (
 CREATE TABLE missing_persons (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   guardian_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  guardian_name VARCHAR(120),
+  guardian_phone VARCHAR(40),
+  guardian_email VARCHAR(160),
+  guardian_relation VARCHAR(40),
+  guardian_nid VARCHAR(40),
   name VARCHAR(120) NOT NULL,
   name_bn VARCHAR(120),
   age INT,

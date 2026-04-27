@@ -1,14 +1,31 @@
 import express from 'express';
-import { createCase, getCase, listCases, myCases, updateCaseStatus } from '../controllers/caseController.js';
-import { requireAuth, requireRole } from '../middleware/auth.js';
-import { uploadCaseFiles } from '../utils/upload.js';
+import { createCase, getCase, listCases, myCases, updateCaseStatus, deleteCase } from '../controllers/caseController.js';
+import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
+import { upload } from '../utils/upload.js';
 
 const router = express.Router();
 
-router.get('/', listCases);
-router.get('/mine', requireAuth, requireRole('guardian', 'admin', 'police'), myCases);
-router.get('/:id', getCase);
-router.post('/', requireAuth, requireRole('guardian', 'admin', 'police'), uploadCaseFiles, createCase);
+// GET /cases — admin/police see all; others see only their own
+router.get('/', optionalAuth, listCases);
+
+// GET /cases/mine — only own cases
+router.get('/mine', requireAuth, myCases);
+
+// GET /cases/:id — owner, admin, police only
+router.get('/:id', optionalAuth, getCase);
+
+// POST /cases — must be logged in
+router.post('/', requireAuth, requireRole('guardian', 'local', 'admin', 'police'), 
+  upload.fields([
+    { name: 'images', maxCount: 5 },
+    { name: 'video', maxCount: 1 }
+  ]), 
+  createCase);
+
+// PATCH /cases/:id/status — admin/police only
 router.patch('/:id/status', requireAuth, requireRole('admin', 'police'), updateCaseStatus);
+
+// DELETE /cases/:id — admin only
+router.delete('/:id', requireAuth, requireRole('admin'), deleteCase);
 
 export default router;
