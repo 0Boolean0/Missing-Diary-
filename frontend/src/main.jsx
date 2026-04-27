@@ -11,6 +11,8 @@ import Dashboard from './pages/Dashboard';
 import ReportCase from './pages/ReportCase';
 import CaseDetails from './pages/CaseDetails';
 import SubmitSighting from './pages/SubmitSighting';
+import MissingCases from './pages/MissingCases';
+import Sightings from './pages/Sightings';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -25,8 +27,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/cases" element={<MissingCases />} />
           <Route path="/cases/:id" element={<CaseDetails />} />
-          <Route path="/sighting/:id?" element={<Protected><SubmitSighting /></Protected>} />
+          <Route path="/sightings" element={<Sightings />} />
+          <Route path="/sighting/:id?" element={<SubmitSighting />} />
           <Route path="/report" element={<Protected><ReportCase /></Protected>} />
           <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
         </Routes>

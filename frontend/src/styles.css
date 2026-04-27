@@ -79,3 +79,32 @@
 .anon-notice{background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;font-size:13px;color:#92400e}
 .file-upload-box{display:grid;gap:6px}
 .file-upload-box label{font-weight:600;font-size:14px}
+/* Navbar Report Dropdown */
+.nav-dropdown{position:relative}
+.nav-dropdown-menu{position:absolute;top:calc(100% + 10px);right:0;background:white;border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 30px #0f172a18;min-width:260px;z-index:100;overflow:hidden}
+.nav-dropdown-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s}
+.nav-dropdown-item:hover{background:#f8fafc}
+.nav-dropdown-item span:first-child{font-size:22px;flex-shrink:0;margin-top:2px}
+.nav-dropdown-item b{display:block;font-size:14px;color:var(--text)}
+.nav-dropdown-item p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.nav-lock{margin-left:auto;font-size:14px;opacity:.5;flex-shrink:0}
+.nav-dropdown-footer{padding:10px 16px;border-top:1px solid var(--border);background:#f8fafc;font-size:13px;text-align:center}
+.nav-dropdown-footer a{color:var(--blue);font-weight:600}
+/* Missing Cases Page */
+.cases-header{margin:28px 0 20px}
+.cases-header h1{margin:0 0 4px;font-size:28px;font-weight:800}
+.cases-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px}
+.cases-search{flex:1;min-width:220px;padding:11px 16px;border:1px solid var(--border);border-radius:10px;font:inherit;background:white}
+.cases-status-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.status-tab{background:white;border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
+.status-tab:hover{border-color:var(--blue);color:var(--blue)}
+.status-tab.active{background:var(--blue);color:white;border-color:var(--blue)}
+.cases-view-toggle{display:flex;gap:4px;background:#f1f5f9;border-radius:8px;padding:3px}
+.view-btn{background:transparent;border:none;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.view-btn.active{background:white;color:var(--text);box-shadow:0 1px 4px #0f172a14}
+.cases-count{font-size:13px;color:var(--muted);margin-bottom:16px}
+/* Sightings Page */
+.sighting-page-header{margin:28px 0 20px}
+.sighting-page-header h1{margin:0 0 6px;font-size:28px;font-weight:800}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.form-row-2{grid-template-columns:1fr}.anon-toggle{grid-template-columns:1fr}}
