@@ -63,12 +63,12 @@ export async function myCases(req, res, next) {
 export async function getCase(req, res, next) {
   try {
     const result = await query(
-      'SELECT mp.*, u.name AS guardian_name, ' +
+      'SELECT mp.*, u.name AS guardian_name, u.phone AS guardian_phone, ' +
       'COALESCE(json_agg(DISTINCT pi.image_url) FILTER (WHERE pi.image_url IS NOT NULL), \'[]\') AS images ' +
       'FROM missing_persons mp ' +
       'LEFT JOIN users u ON u.id=mp.guardian_id ' +
       'LEFT JOIN person_images pi ON pi.missing_person_id=mp.id ' +
-      'WHERE mp.id=$1 GROUP BY mp.id,u.name',
+      'WHERE mp.id=$1 GROUP BY mp.id, u.name, u.phone',
       [req.params.id]
     );
     if (!result.rows[0]) return res.status(404).json({ message: 'Case not found' });

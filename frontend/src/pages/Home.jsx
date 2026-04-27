@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import CaseCard from '../components/CaseCard';
 import { api } from '../api/client';
+import heroBg from '../assets/202507asia_bangladesh_enforced_disappearances.webp';
 
 export default function Home() {
   const [cases, setCases] = useState([]);
@@ -35,7 +36,7 @@ export default function Home() {
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="home-hero">
+      <section className="home-hero" style={{ backgroundImage: `url(${heroBg})` }}>
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
           <div className="home-hero-badge">Bangladesh's Missing Persons Alert System</div>
@@ -194,7 +195,21 @@ export default function Home() {
       <footer className="home-footer">
         <div className="home-footer-inner">
           <div className="home-footer-brand">
-            <span className="home-footer-logo">🛡️ Missing Diary</span>
+            <span className="home-footer-logo">
+              <span className="brand-logo">
+                <svg width="28" height="28" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="34" height="34" rx="9" fill="#e11d2e"/>
+                  <path d="M7 10.5C7 10.5 11 9 17 9C23 9 27 10.5 27 10.5V25.5C27 25.5 23 24 17 24C11 24 7 25.5 7 25.5V10.5Z" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <line x1="17" y1="9" x2="17" y2="24" stroke="white" strokeWidth="1.5"/>
+                  <circle cx="24" cy="11" r="4" fill="#fbbf24" stroke="#e11d2e" strokeWidth="1.5"/>
+                  <text x="24" y="14.5" textAnchor="middle" fontSize="6" fontWeight="bold" fill="#1e3a5f">!</text>
+                </svg>
+                <span className="brand-text">
+                  <span className="brand-main" style={{color:'#fff'}}>Missing</span>
+                  <span className="brand-sub">Diary</span>
+                </span>
+              </span>
+            </span>
             <p>Bangladesh's platform for reporting and finding missing persons. Every second matters. Together, we bring them home.</p>
           </div>
           <div className="home-footer-links">
