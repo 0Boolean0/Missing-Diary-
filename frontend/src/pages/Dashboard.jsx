@@ -13,7 +13,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('cases');
 
   useEffect(() => {
-    api.get(user.role === 'guardian' ? '/cases/mine' : '/cases').then(r => setCases(r.data)).catch(() => {});
+    const endpoint = ['admin', 'police'].includes(user.role) ? '/cases' : '/cases/mine';
+    api.get(endpoint).then(r => setCases(r.data)).catch(() => {});
     if (['admin', 'police'].includes(user.role)) api.get('/sightings').then(r => setSightings(r.data)).catch(() => {});
     if (user.role === 'admin') api.get('/admin/stats').then(r => setStats(r.data)).catch(() => {});
   }, [user.role]);
@@ -22,6 +23,13 @@ export default function Dashboard() {
     await api.patch(`/cases/${id}/status`, { status });
     setCases(cases.map(c => c.id === id ? { ...c, status } : c));
   }
+
+  async function deleteCase(id) {
+    if (!window.confirm('Are you sure you want to delete this case? This cannot be undone.')) return;
+    await api.delete(`/cases/${id}`);
+    setCases(cases.filter(c => c.id !== id));
+  }
+
   async function updateSighting(id, status) {
     await api.patch(`/sightings/${id}/status`, { status });
     setSightings(sightings.map(s => s.id === id ? { ...s, status } : s));
@@ -111,7 +119,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Tab Content */}
+          {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="db-section">
               <h2 className="db-section-title">Overview</h2>
@@ -125,6 +133,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Map Tab */}
           {activeTab === 'map' && (
             <div className="db-section">
               <h2 className="db-section-title">Live Map</h2>
@@ -132,6 +141,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Cases Tab */}
           {activeTab === 'cases' && (
             <div className="db-section">
               <div className="db-section-header">
@@ -162,15 +172,26 @@ export default function Dashboard() {
                           <td className="db-muted">{c.last_seen_location}</td>
                           <td><span className={`badge ${c.status}`}>{c.status}</span></td>
                           <td>
-                            {['admin', 'police'].includes(user.role) ? (
-                              <div className="db-btn-group">
-                                <button className="db-mini-btn verify" onClick={() => updateCase(c.id, 'verified')}>Verify</button>
-                                <button className="db-mini-btn found" onClick={() => updateCase(c.id, 'found')}>Found</button>
-                                <button className="db-mini-btn reject" onClick={() => updateCase(c.id, 'rejected')}>Reject</button>
-                              </div>
-                            ) : (
+                            <div className="db-btn-group">
+                              {/* All roles: View */}
                               <Link to={`/cases/${c.id}`} className="db-mini-btn verify">View</Link>
-                            )}
+
+                              {/* Police: Found only */}
+                              {user.role === 'police' && (
+                                <button className="db-mini-btn found" onClick={() => updateCase(c.id, 'found')}>Found</button>
+                              )}
+
+                              {/* Admin: full control */}
+                              {user.role === 'admin' && (
+                                <>
+                                  <button className="db-mini-btn verify" onClick={() => updateCase(c.id, 'verified')}>Verify</button>
+                                  <button className="db-mini-btn pending" onClick={() => updateCase(c.id, 'pending')}>Pending</button>
+                                  <button className="db-mini-btn found" onClick={() => updateCase(c.id, 'found')}>Found</button>
+                                  <button className="db-mini-btn reject" onClick={() => updateCase(c.id, 'rejected')}>Reject</button>
+                                  <button className="db-mini-btn delete" onClick={() => deleteCase(c.id)}>🗑️</button>
+                                </>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -181,6 +202,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Sightings Tab — admin & police only */}
           {activeTab === 'sightings' && ['admin', 'police'].includes(user.role) && (
             <div className="db-section">
               <div className="db-section-header">
