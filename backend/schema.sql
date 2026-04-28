@@ -72,8 +72,8 @@ CREATE TABLE audit_logs (
 );
 
 INSERT INTO users (name,email,password_hash,role,verified) VALUES
-('Admin','admin@missingdiary.test','$2b$10$0MqudsZP.ubB12uJO80wru3Fkoj9TFL0vRrEusp/6owwFyQHx0Xi.','admin',true),
-('Police Officer','police@missingdiary.test','$2b$10$0MqudsZP.ubB12uJO80wru3Fkoj9TFL0vRrEusp/6owwFyQHx0Xi.','police',true),
-('Guardian User','guardian@missingdiary.test','$2b$10$0MqudsZP.ubB12uJO80wru3Fkoj9TFL0vRrEusp/6owwFyQHx0Xi.','guardian',true),
-('Local User','local@missingdiary.test','$2b$10$0MqudsZP.ubB12uJO80wru3Fkoj9TFL0vRrEusp/6owwFyQHx0Xi.','local',true);
+('Admin','admin@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','admin',true),
+('Police Officer','police@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','police',true),
+('Guardian User','guardian@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','guardian',true),
+('Local User','local@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','local',true);
 -- all seeded passwords: password123

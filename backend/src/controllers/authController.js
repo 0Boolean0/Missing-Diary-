@@ -5,13 +5,16 @@ import { query } from '../config/db.js';
 
 const registerSchema = z.object({
   name: z.string().min(2),
-  email: z.string().email(),
+  email: z.string().email().transform((value) => value.trim().toLowerCase()),
   phone: z.string().optional(),
   password: z.string().min(6),
   role: z.enum(['guardian', 'local']).default('local')
 });
 
-const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
+const loginSchema = z.object({
+  email: z.string().email().transform((value) => value.trim().toLowerCase()),
+  password: z.string().min(1)
+});
 
 function sign(user) { return jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' }); }
 

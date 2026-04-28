@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logoGif from '../assets/output-onlinegiftools.gif';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -33,19 +34,7 @@ export default function Login() {
       <div className="auth-left">
         <div className="auth-left-inner">
           <Link to="/" className="auth-logo">
-            <span className="brand-logo">
-              <svg width="30" height="30" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="#e11d2e"/>
-                <path d="M7 10.5C7 10.5 11 9 17 9C23 9 27 10.5 27 10.5V25.5C27 25.5 23 24 17 24C11 24 7 25.5 7 25.5V10.5Z" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-                <line x1="17" y1="9" x2="17" y2="24" stroke="white" strokeWidth="1.5"/>
-                <circle cx="24" cy="11" r="4" fill="#fbbf24" stroke="#e11d2e" strokeWidth="1.5"/>
-                <text x="24" y="14.5" textAnchor="middle" fontSize="6" fontWeight="bold" fill="#1e3a5f">!</text>
-              </svg>
-              <span className="brand-text">
-                <span className="brand-main" style={{color:'#fff'}}>Missing</span>
-                <span className="brand-sub">Diary</span>
-              </span>
-            </span>
+            <img src={logoGif} alt="Missing Diary" className="brand-gif" />
           </Link>
           <div className="auth-left-body">
             <h2>Every Second Counts.</h2>
