@@ -8,7 +8,7 @@ export default function CaseCard({ item }) {
       <div className="row between"><h3>{item.name}</h3><span className={`badge ${item.status}`}>{item.status}</span></div>
       <p>Age: {item.age || 'Unknown'}</p>
       <p>Last seen: {item.last_seen_location}</p>
-      <div className="row gap"><Link className="btn" to={`/cases/${item.id}`}>View Details</Link><Link className="btn outline" to={`/sighting/${item.id}`}>I Saw Them</Link></div>
+      <div className="row gap"><Link className="btn" to={`/cases/${item.id}`}>View Details</Link><Link className="btn outline" to={`/sighting/${item.id}`}>I Saw him/her</Link></div>
     </div>
   </div>
 }

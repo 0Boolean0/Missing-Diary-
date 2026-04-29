@@ -42,12 +42,12 @@ export default function Home() {
         <div className="home-hero-content">
           <div className="home-hero-badge">Bangladesh's Missing Persons Alert System</div>
           <h1 className="home-hero-title">
-            Help bring them home.<br />
+            Help to bring them home,<br />
             <span className="home-hero-accent">Reunite them with loved ones.</span>
           </h1>
           <p className="home-hero-sub">
-            Report missing persons instantly. Share information. Connect with authorities.<br />
-            Every share increases hope. Every verified update can save time.
+            Report missing persons instantly, share information, connect with authorities.<br />
+            Every share increases hope and every verified update can save time.
           </p>
           <form className="home-search-bar" onSubmit={handleSearch}>
             <span className="home-search-icon">🔍</span>

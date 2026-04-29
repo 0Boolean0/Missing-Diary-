@@ -75,7 +75,7 @@ export default function Register() {
       <div className="auth-right">
         <div className="auth-form-card auth-form-card-wide">
           <div className="auth-form-header">
-            <div className="auth-form-icon">🛡️</div>
+            <div className="auth-form-icon"></div>
             <h1>Create Account</h1>
             <p>Join Missing Diary — it's free</p>
           </div>
