@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import CaseCard from '../components/CaseCard';
 import MapView from '../components/MapView';
 import { api } from '../api/client';
+import { useLang } from '../context/LangContext';
 
 const STATUSES = ['all', 'active', 'verified', 'pending', 'found', 'closed'];
 
@@ -14,6 +15,7 @@ export default function MissingCases() {
   const [search, setSearch] = useState(searchParams.get('q') || '');
   const [status, setStatus] = useState('all');
   const [view, setView] = useState('grid'); // grid | map
+  const { t } = useLang();
 
   useEffect(() => {
     api.get('/cases').then(r => setCases(r.data)).catch(() => setCases([]));
@@ -38,7 +40,7 @@ export default function MissingCases() {
         {/* Header */}
         <div className="cases-header">
           <div>
-            <h1>Missing Cases</h1>
+            <h1>{t('cases.title')}</h1>
             <p className="muted">Search through {cases.length} active cases. Submit sightings to help reunite families.</p>
           </div>
         </div>
@@ -49,7 +51,7 @@ export default function MissingCases() {
             className="cases-search"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="🔍 Search by name, age, location..."
+            placeholder={t('cases.search_placeholder')}
           />
           <div className="cases-status-tabs">
             {STATUSES.map(s => (
@@ -63,8 +65,8 @@ export default function MissingCases() {
             ))}
           </div>
           <div className="cases-view-toggle">
-            <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>⊞ Grid</button>
-            <button className={`view-btn ${view === 'map' ? 'active' : ''}`} onClick={() => setView('map')}>🗺 Map</button>
+            <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>{t('cases.view_grid')}</button>
+            <button className={`view-btn ${view === 'map' ? 'active' : ''}`} onClick={() => setView('map')}>{t('cases.view_map')}</button>
           </div>
         </div>
 
@@ -73,7 +75,7 @@ export default function MissingCases() {
         {/* Grid View */}
         {view === 'grid' && (
           filtered.length === 0
-            ? <div className="db-empty"><div className="db-empty-icon">📭</div><p>No cases found</p></div>
+            ? <div className="db-empty"><div className="db-empty-icon">📭</div><p>{t('cases.no_cases')}</p></div>
             : <div className="grid cards">{filtered.map(c => <CaseCard item={c} key={c.id} />)}</div>
         )}
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import logoGif from '../assets/output-onlinegiftools.gif';
 
 export default function Register() {
@@ -9,6 +10,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { t } = useLang();
   const nav = useNavigate();
 
   function set(k) { return e => setForm(f => ({ ...f, [k]: e.target.value })); }
@@ -76,8 +78,8 @@ export default function Register() {
         <div className="auth-form-card auth-form-card-wide">
           <div className="auth-form-header">
             <div className="auth-form-icon"></div>
-            <h1>Create Account</h1>
-            <p>Join Missing Diary — it's free</p>
+            <h1>{t('register.title')}</h1>
+            <p>{t('register.sub')}</p>
           </div>
 
           {error && (
@@ -89,7 +91,7 @@ export default function Register() {
           <form onSubmit={submit} className="auth-form">
             <div className="auth-form-row">
               <div className="auth-field">
-                <label>Full Name</label>
+                <label>{t('register.name')}</label>
                 <div className="auth-input-wrap">
                   <span className="auth-input-icon"></span>
                   <input
@@ -102,7 +104,7 @@ export default function Register() {
                 </div>
               </div>
               <div className="auth-field">
-                <label>Phone Number</label>
+                <label>{t('register.phone')}</label>
                 <div className="auth-input-wrap">
                   <span className="auth-input-icon">📞</span>
                   <input
@@ -116,7 +118,7 @@ export default function Register() {
             </div>
 
             <div className="auth-field">
-              <label>Email Address</label>
+              <label>{t('register.email')}</label>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon"></span>
                 <input
@@ -131,7 +133,7 @@ export default function Register() {
             </div>
 
             <div className="auth-field">
-              <label>Password</label>
+              <label>{t('register.password')}</label>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon"></span>
                 <input
@@ -154,7 +156,7 @@ export default function Register() {
             </div>
 
             <div className="auth-field">
-              <label>I am joining as</label>
+              <label>{t('register.role')}</label>
               <div className="auth-role-grid">
                 {roles.map(r => (
                   <label
@@ -179,14 +181,14 @@ export default function Register() {
 
             <button className="auth-submit-btn" disabled={loading}>
               {loading ? <span className="auth-spinner" /> : null}
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('register.creating') : t('register.submit')}
             </button>
           </form>
 
           <div className="auth-divider"><span>or</span></div>
 
           <p className="auth-switch">
-            Already have an account? <Link to="/login">Sign in →</Link>
+            {t('register.have_account')} <Link to="/login">{t('register.sign_in')}</Link>
           </p>
         </div>
       </div>

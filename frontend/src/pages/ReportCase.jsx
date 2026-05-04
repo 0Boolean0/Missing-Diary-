@@ -1,11 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MapView from '../components/MapView';
 import { api } from '../api/client';
+import { describePhoto } from '../utils/aiDescriber';
+import * as offlineQueue from '../utils/offlineQueue';
+
+// Simple UUID v4 generator (no external dependency needed)
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
 
 export default function ReportCase() {
   const nav = useNavigate();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pos, setPos] = useState({ lat: 23.8103, lng: 90.4125 });
   const [geocoding, setGeocoding] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
@@ -13,6 +24,11 @@ export default function ReportCase() {
   const [videoFile, setVideoFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
+  const [msgType, setMsgType] = useState('error'); // 'error' | 'success'
+  const [photoError, setPhotoError] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [queueCount, setQueueCount] = useState(offlineQueue.getAll().length);
 
   const [form, setForm] = useState({
     reporter_name: '',
@@ -33,6 +49,31 @@ export default function ReportCase() {
     last_seen_time: '',
   });
 
+  // 14.2: Track online/offline connectivity
+  useEffect(() => {
+    function handleOnline() {
+      setIsOnline(true);
+    }
+    function handleOffline() {
+      setIsOnline(false);
+    }
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Keep queue count in sync when the custom event fires (from syncQueue)
+  useEffect(() => {
+    function handleQueueUpdate() {
+      setQueueCount(offlineQueue.getAll().length);
+    }
+    window.addEventListener('offlineQueueUpdated', handleQueueUpdate);
+    return () => window.removeEventListener('offlineQueueUpdated', handleQueueUpdate);
+  }, []);
+
   function set(k, v) { setForm(f => ({ ...f, [k]: v })); }
 
   function handlePhoto(e) {
@@ -40,6 +81,18 @@ export default function ReportCase() {
     if (!f) return;
     setPhotoFile(f);
     setPhotoPreview(URL.createObjectURL(f));
+    setPhotoError(false);
+    setAiGenerated(false);
+
+    // Attempt AI description generation
+    setAiLoading(true);
+    describePhoto(f).then(description => {
+      setAiLoading(false);
+      if (description) {
+        set('description', description);
+        setAiGenerated(true);
+      }
+    });
   }
 
   function handleVideo(e) {
@@ -50,10 +103,12 @@ export default function ReportCase() {
   async function handleMapPick(latlng) {
     setPos(latlng);
     setGeocoding(true);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json&accept-language=en`,
-        { headers: { 'Accept-Language': 'en' } }
+        { headers: { 'Accept-Language': 'en' }, signal: controller.signal }
       );
       const data = await res.json();
       if (data && data.display_name) {
@@ -69,16 +124,74 @@ export default function ReportCase() {
         set('last_seen_location', short);
       }
     } catch {
-      // silently fail — user can still type manually
+      // On timeout or error: leave existing value unchanged, no error shown
     } finally {
+      clearTimeout(timeout);
       setGeocoding(false);
     }
+  }
+
+  // 14.3: Capture GPS and enqueue when offline
+  async function submitOffline() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        // No geolocation available — use current map pin position
+        resolve(pos);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({ lat: position.coords.latitude, lng: position.coords.longitude });
+        },
+        () => {
+          // On error, fall back to current map pin position
+          resolve(pos);
+        },
+        { timeout: 10000, maximumAge: 60000 }
+      );
+    });
   }
 
   async function submit(e) {
     e.preventDefault();
     setMsg('');
     setSubmitting(true);
+
+    // 14.3: If offline, capture GPS and enqueue
+    if (!isOnline) {
+      const gpsPos = await submitOffline();
+      const entry = {
+        id: generateUUID(),
+        timestamp: new Date().toISOString(),
+        formData: {
+          ...form,
+          last_seen_lat: gpsPos.lat,
+          last_seen_lng: gpsPos.lng,
+          // Photo file cannot be stored in localStorage — store metadata only
+          photoFileName: photoFile ? photoFile.name : null,
+          photoNote: photoFile ? 'Re-upload required — file cannot be stored offline' : null,
+          videoFileName: videoFile ? videoFile.name : null,
+        },
+      };
+      offlineQueue.enqueue(entry);
+      const newCount = offlineQueue.getAll().length;
+      setQueueCount(newCount);
+      window.dispatchEvent(new CustomEvent('offlineQueueUpdated'));
+      setMsgType('success');
+      setMsg('Your report has been saved and will be submitted when connectivity is restored.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Online path: photo is required
+    if (!photoFile) {
+      setPhotoError(true);
+      setMsgType('error');
+      setMsg('A photo is required. Please upload a photo of the missing person.');
+      setSubmitting(false);
+      return;
+    }
+
     const fd = new FormData();
     Object.entries(form).forEach(([k, v]) => { if (v) fd.append(k, v); });
     fd.append('last_seen_lat', pos.lat);
@@ -89,6 +202,7 @@ export default function ReportCase() {
       const { data } = await api.post('/cases', fd);
       nav(`/cases/${data.id}`);
     } catch (err) {
+      setMsgType('error');
       setMsg(err.response?.data?.message || 'Failed to submit report');
     }
     setSubmitting(false);
@@ -106,9 +220,23 @@ export default function ReportCase() {
             <p>Fill in as much detail as possible. Every piece of information helps.</p>
           </div>
 
+          {/* 14.2: Offline banner */}
+          {!isOnline && (
+            <div className="rc-offline-banner">
+              📵 You are offline. Your report will be saved and submitted when connectivity is restored.
+            </div>
+          )}
+
+          {/* 14.5: Pending queue count */}
+          {queueCount > 0 && (
+            <div className="rc-queue-notice">
+              📋 {queueCount} report{queueCount !== 1 ? 's' : ''} pending submission — will be sent when online.
+            </div>
+          )}
+
           {msg && (
-            <div className="rc-error">
-              <strong>Error:</strong> {msg}
+            <div className={msgType === 'success' ? 'rc-success' : 'rc-error'}>
+              {msgType === 'success' ? '✅' : <strong>Error:</strong>} {msg}
             </div>
           )}
 
@@ -207,6 +335,16 @@ export default function ReportCase() {
                 </div>
                 <div className="rc-field rc-full">
                   <label>Additional Description</label>
+                  {aiGenerated && (
+                    <div style={{ fontSize: 12, color: '#7c3aed', marginBottom: 4, fontWeight: 600 }}>
+                      ✨ AI-generated — you may edit this
+                    </div>
+                  )}
+                  {aiLoading && (
+                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
+                      ✨ Generating description...
+                    </div>
+                  )}
                   <textarea value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe the person in detail — physical features, habits, who they may be with..." rows={4} />
                 </div>
               </div>
@@ -251,6 +389,7 @@ export default function ReportCase() {
                 markers={[{ lat: pos.lat, lng: pos.lng, title: 'Last seen location' }]}
                 onPick={handleMapPick}
                 height={300}
+                draggable={true}
               />
               <p className="rc-coords">📍 {pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</p>
             </div>
@@ -262,11 +401,16 @@ export default function ReportCase() {
                 <div className="rc-section-line" />
               </div>
               <p className="rc-section-sub">Upload recent photos or videos to help identify the person</p>
+              {isOnline ? null : (
+                <p className="rc-offline-note">
+                  📵 Photo files cannot be stored offline. The file name will be saved — you will need to re-upload the photo when submitting online.
+                </p>
+              )}
               <div className="rc-grid-2">
                 {/* Photo */}
                 <div className="rc-field">
                   <label>Photo <span className="rc-file-hint">(Max 10MB)</span></label>
-                  <label className="rc-dropzone" htmlFor="photo-input">
+                  <label className={`rc-dropzone${photoError ? ' rc-dropzone-error' : ''}`} htmlFor="photo-input">
                     {photoPreview ? (
                       <div className="rc-photo-preview">
                         <img src={photoPreview} alt="preview" />
@@ -281,6 +425,7 @@ export default function ReportCase() {
                         <span className="rc-drop-icon">🖼️</span>
                         <span>Drag &amp; drop or <span className="rc-browse">browse</span></span>
                         <span className="rc-drop-hint">jpg, png, webp</span>
+                        {photoError && <span className="rc-drop-required">Photo is required</span>}
                       </div>
                     )}
                   </label>
@@ -315,7 +460,11 @@ export default function ReportCase() {
 
             {/* Submit */}
             <button type="submit" className="rc-btn-submit" disabled={submitting}>
-              {submitting ? '⏳ Submitting...' : '🚨 Submit Report'}
+              {submitting
+                ? '⏳ Submitting...'
+                : isOnline
+                  ? '🚨 Submit Report'
+                  : '💾 Save Report (Offline)'}
             </button>
             <p className="rc-required-note">* Required fields</p>
 
@@ -347,6 +496,34 @@ export default function ReportCase() {
           color: #64748b;
           font-size: 14px;
           margin: 0;
+        }
+        .rc-offline-banner {
+          background: #fef3c7;
+          border: 1px solid #fbbf24;
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-bottom: 16px;
+          color: #92400e;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .rc-queue-notice {
+          background: #eff6ff;
+          border: 1px solid #93c5fd;
+          border-radius: 10px;
+          padding: 10px 16px;
+          margin-bottom: 16px;
+          color: #1e40af;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .rc-offline-note {
+          background: #fef9c3;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          color: #713f12;
+          margin: 0 0 12px;
         }
         .rc-card {
           background: #fff;
@@ -433,6 +610,9 @@ export default function ReportCase() {
           overflow: hidden;
         }
         .rc-dropzone:hover { border-color: #27AE60; }
+        .rc-dropzone-error { border-color: #ef4444; background: #fef2f2; }
+        .rc-dropzone-error:hover { border-color: #dc2626; }
+        .rc-drop-required { color: #ef4444; font-size: 12px; font-weight: 600; }
         .rc-dropzone-inner {
           display: flex;
           flex-direction: column;
@@ -519,6 +699,16 @@ export default function ReportCase() {
           margin-bottom: 16px;
           color: #991b1b;
           font-size: 14px;
+        }
+        .rc-success {
+          background: #f0fdf4;
+          border: 1px solid #86efac;
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-bottom: 16px;
+          color: #166534;
+          font-size: 14px;
+          font-weight: 600;
         }
         @media (max-width: 600px) {
           .rc-grid-2 { grid-template-columns: 1fr; }

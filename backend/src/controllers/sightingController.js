@@ -91,3 +91,48 @@ export async function matchSightings(req, res, next) {
     res.json({ case: c, matches: scored });
   } catch (e) { next(e); }
 }
+
+export async function approveSighting(req, res, next) {
+  try {
+    const result = await query(
+      'UPDATE sightings SET status=$1 WHERE id=$2 RETURNING *',
+      ['verified', req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ message: 'Sighting not found' });
+    const notes = req.body?.notes || null;
+    await query(
+      'INSERT INTO audit_logs (user_id,action,target_type,target_id,notes) VALUES ($1,$2,$3,$4,$5)',
+      [req.user.id, 'Approved sighting', 'sighting', req.params.id, notes]
+    );
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+}
+
+export async function rejectSighting(req, res, next) {
+  try {
+    const result = await query(
+      'UPDATE sightings SET status=$1 WHERE id=$2 RETURNING *',
+      ['rejected', req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ message: 'Sighting not found' });
+    const notes = req.body?.notes || null;
+    await query(
+      'INSERT INTO audit_logs (user_id,action,target_type,target_id,notes) VALUES ($1,$2,$3,$4,$5)',
+      [req.user.id, 'Rejected sighting', 'sighting', req.params.id, notes]
+    );
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+}
+
+export async function getSightingAudit(req, res, next) {
+  try {
+    const result = await query(
+      'SELECT al.*, u.name AS actor_name ' +
+      'FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id ' +
+      'WHERE al.target_id=$1 AND al.target_type=\'sighting\' ' +
+      'ORDER BY al.created_at DESC',
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (e) { next(e); }
+}

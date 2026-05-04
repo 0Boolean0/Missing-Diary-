@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import logoGif from '../assets/output-onlinegiftools.gif';
 
 export default function Login() {
@@ -10,6 +11,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useLang();
   const nav = useNavigate();
   const [params] = useSearchParams();
   const redirect = params.get('redirect') || '/dashboard';
@@ -72,8 +74,8 @@ export default function Login() {
         <div className="auth-form-card">
           <div className="auth-form-header">
             <div className="auth-form-icon">👋</div>
-            <h1>Welcome back</h1>
-            <p>Sign in to your Missing Diary account</p>
+            <h1>{t('login.title')}</h1>
+            <p>{t('login.sub')}</p>
           </div>
 
           {redirect !== '/dashboard' && (
@@ -90,7 +92,7 @@ export default function Login() {
 
           <form onSubmit={submit} className="auth-form">
             <div className="auth-field">
-              <label>Email Address</label>
+              <label>{t('login.email')}</label>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon">✉️</span>
                 <input
@@ -105,7 +107,7 @@ export default function Login() {
             </div>
 
             <div className="auth-field">
-              <label>Password</label>
+              <label>{t('login.password')}</label>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon">🔑</span>
                 <input
@@ -129,14 +131,14 @@ export default function Login() {
 
             <button className="auth-submit-btn" disabled={loading}>
               {loading ? <span className="auth-spinner" /> : null}
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('login.signing_in') : t('login.submit')}
             </button>
           </form>
 
           <div className="auth-divider"><span>or</span></div>
 
           <p className="auth-switch">
-            Don't have an account? <Link to="/register">Create one free →</Link>
+            {t('login.no_account')} <Link to="/register">{t('login.create')}</Link>
           </p>
 
           {/* Fix #20: test credentials only shown in development builds */}

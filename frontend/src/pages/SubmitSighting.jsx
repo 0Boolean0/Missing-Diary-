@@ -3,12 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MapView from '../components/MapView';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { api } from '../api/client';
 
 export default function SubmitSighting() {
   const { id } = useParams();
   const nav = useNavigate();
   const { user } = useAuth();
+  const { t } = useLang();
   const [cases, setCases] = useState([]);
   const [casesError, setCasesError] = useState('');
   const [image, setImage] = useState(null);
@@ -53,23 +55,23 @@ export default function SubmitSighting() {
     <>
       <Navbar />
       <main className="container narrow">
-        <h1>Submit a Sighting</h1>
-        <p className="muted">Your information can help bring someone home.</p>
+        <h1>{t('sighting.title')}</h1>
+        <p className="muted">{t('sighting.sub')}</p>
 
         {/* Anonymous toggle */}
         <div className="anon-toggle">
           <div className={`anon-option ${anonymous ? 'active' : ''}`} onClick={() => setAnonymous(true)}>
             <span>🕵️</span>
             <div>
-              <b>Anonymous</b>
+              <b>{t('sighting.anonymous')}</b>
               <p>Submit without revealing your identity</p>
             </div>
           </div>
           <div className={`anon-option ${!anonymous ? 'active' : ''}`} onClick={() => setAnonymous(false)}>
             <span>👤</span>
             <div>
-              <b>With Contact Info</b>
-              <p>Provide name & phone for follow-up</p>
+              <b>{t('sighting.with_contact')}</b>
+              <p>Provide name &amp; phone for follow-up</p>
             </div>
           </div>
         </div>
@@ -149,7 +151,7 @@ export default function SubmitSighting() {
           )}
 
           <button className="btn full danger" disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Sighting'}
+            {submitting ? t('sighting.submitting') : t('sighting.submit')}
           </button>
         </form>
       </main>

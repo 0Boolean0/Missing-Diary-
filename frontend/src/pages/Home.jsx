@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import CaseCard from '../components/CaseCard';
 import { api } from '../api/client';
+import { useLang } from '../context/LangContext';
+import { useAuth } from '../context/AuthContext';
 import heroBg from '../assets/202507asia_bangladesh_enforced_disappearances.webp';
 import logoGif from '../assets/output-onlinegiftools.gif';
 
@@ -11,6 +13,10 @@ export default function Home() {
   const [stats, setStats] = useState({ total: 0, found: 0, active: 0 });
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const { t } = useLang();
+  const { user } = useAuth();
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'police';
 
   useEffect(() => {
     api.get('/cases').then(r => {
@@ -40,15 +46,14 @@ export default function Home() {
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
           <div className="home-hero-badge">
-            🇧🇩 Bangladesh Missing Persons Alert System
+            {t('home.hero_badge')}
           </div>
           <h1 className="home-hero-title">
-            Help Bring Them Home.<br />
-            <span className="home-hero-accent">Every Second Counts.</span>
+            {t('home.hero_title')}<br />
+            <span className="home-hero-accent">{t('home.hero_accent')}</span>
           </h1>
           <p className="home-hero-sub">
-            Report missing persons instantly. Share information. Connect with authorities.<br />
-            Every verified update can save a life.
+            {t('home.hero_sub')}
           </p>
 
           {/* Search */}
@@ -57,20 +62,29 @@ export default function Home() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search by name, location, age..."
+              placeholder={t('home.search_placeholder')}
             />
-            <button type="submit">Search</button>
+            <button type="submit">{t('home.search_btn')}</button>
           </form>
 
           {/* CTAs — red for emergency report, outline for sighting */}
-          <div className="home-hero-btns">
-            <Link className="home-btn-primary" to="/report">
-              🚨 Report Missing Person
-            </Link>
-            <Link className="home-btn-outline" to="/sighting">
-              👁 Submit a Sighting
-            </Link>
-          </div>
+          {!isAdmin && (
+            <div className="home-hero-btns">
+              <Link className="home-btn-primary" to="/report">
+                {t('home.report_btn')}
+              </Link>
+              <Link className="home-btn-outline" to="/sighting">
+                {t('home.sighting_btn')}
+              </Link>
+            </div>
+          )}
+          {isAdmin && (
+            <div className="home-hero-btns">
+              <Link className="home-btn-outline" to="/dashboard">
+                📋 Go to Dashboard
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -79,22 +93,22 @@ export default function Home() {
         <div className="home-stats-inner">
           <div className="home-stat">
             <span className="home-stat-num">{stats.total}</span>
-            <span className="home-stat-label">Cases Reported</span>
+            <span className="home-stat-label">{t('home.stat_reported')}</span>
           </div>
           <div className="home-stat-divider" />
           <div className="home-stat">
             <span className="home-stat-num home-stat-green">{stats.found}</span>
-            <span className="home-stat-label">Successfully Found</span>
+            <span className="home-stat-label">{t('home.stat_found')}</span>
           </div>
           <div className="home-stat-divider" />
           <div className="home-stat">
             <span className="home-stat-num">{stats.active}</span>
-            <span className="home-stat-label">Active Alerts</span>
+            <span className="home-stat-label">{t('home.stat_active')}</span>
           </div>
           <div className="home-stat-divider" />
           <div className="home-stat">
             <span className="home-stat-num home-stat-green">24/7</span>
-            <span className="home-stat-label">Always Available</span>
+            <span className="home-stat-label">{t('home.stat_available')}</span>
           </div>
         </div>
       </section>
@@ -102,9 +116,9 @@ export default function Home() {
       {/* ── HOW IT WORKS ── */}
       <section className="home-section home-how">
         <div className="home-section-inner">
-          <div className="home-section-label">Simple Process</div>
-          <h2 className="home-section-title">How Missing Diary Works</h2>
-          <p className="home-section-sub">A streamlined process designed to find missing persons as quickly as possible.</p>
+          <div className="home-section-label">{t('home.how_label')}</div>
+          <h2 className="home-section-title">{t('home.how_title')}</h2>
+          <p className="home-section-sub">{t('home.how_sub')}</p>
           <div className="home-steps">
             {[
               { icon: '📋', step: '01', title: 'Submit a Report', desc: 'File a missing person report with photo, description, and last seen location.' },
@@ -124,23 +138,24 @@ export default function Home() {
       </section>
 
       {/* ── RECENT ALERTS ── */}
+      {!isAdmin && (
       <section className="home-section home-alerts-section">
         <div className="home-section-inner">
-          <div className="home-section-label">Active Cases</div>
+          <div className="home-section-label">{t('home.recent_label')}</div>
           <div className="home-alerts-header">
             <div>
-              <h2 className="home-section-title" style={{ marginBottom: 4 }}>Recent Missing Alerts</h2>
+              <h2 className="home-section-title" style={{ marginBottom: 4 }}>{t('home.recent_title')}</h2>
               <p className="home-section-sub" style={{ marginTop: 0, marginBottom: 0 }}>
-                Help find these people. Every piece of information matters.
+                {t('home.recent_sub')}
               </p>
             </div>
-            <Link className="home-btn-secondary" to="/cases">View All Cases →</Link>
+            <Link className="home-btn-secondary" to="/cases">{t('home.view_all')}</Link>
           </div>
 
           {recent.length === 0 ? (
             <div className="home-empty">
               <span>📭</span>
-              <p>No cases reported yet. Be the first to help.</p>
+              <p>{t('home.no_cases')}</p>
               <Link className="home-btn-primary" to="/report">Report a Missing Person</Link>
             </div>
           ) : (
@@ -150,12 +165,13 @@ export default function Home() {
           )}
         </div>
       </section>
+      )}
 
       {/* ── FEATURES ── */}
       <section className="home-section home-features-section">
         <div className="home-section-inner">
-          <div className="home-section-label">Platform Capabilities</div>
-          <h2 className="home-section-title">Every Feature Designed to Save Lives</h2>
+          <div className="home-section-label">{t('home.features_label')}</div>
+          <h2 className="home-section-title">{t('home.features_title')}</h2>
           <p className="home-section-sub">Built for speed, privacy, and coordination across agencies.</p>
           <div className="home-features-grid">
             {[
@@ -179,8 +195,8 @@ export default function Home() {
       {/* ── JOIN US ── */}
       <section className="home-join-section">
         <div className="home-section-inner">
-          <div className="home-section-label">Get Involved</div>
-          <h2 className="home-section-title">Join Us in Protecting Lives</h2>
+          <div className="home-section-label">{t('home.join_label')}</div>
+          <h2 className="home-section-title">{t('home.join_title')}</h2>
           <p className="home-section-sub">Play your role in protecting children and missing persons across Bangladesh.</p>
           <div className="home-join-cards">
             <div className="home-join-card">
@@ -189,13 +205,23 @@ export default function Home() {
               <p>Give your time and skills to help find missing persons.</p>
               <Link className="home-btn-outline-white" to="/register">Get Started</Link>
             </div>
-            {/* Featured card uses green accent, not red — report is the emergency action */}
-            <div className="home-join-card home-join-card-featured">
-              <div className="home-join-icon">🚨</div>
-              <h3>Report a Case</h3>
-              <p>Know someone missing? File a report immediately.</p>
-              <Link className="home-btn-primary" to="/report">Report Now</Link>
-            </div>
+            {/* Featured card — hidden for admin/police */}
+            {!isAdmin && (
+              <div className="home-join-card home-join-card-featured">
+                <div className="home-join-icon">🚨</div>
+                <h3>Report a Case</h3>
+                <p>Know someone missing? File a report immediately.</p>
+                <Link className="home-btn-primary" to="/report">Report Now</Link>
+              </div>
+            )}
+            {isAdmin && (
+              <div className="home-join-card home-join-card-featured">
+                <div className="home-join-icon">🛡️</div>
+                <h3>Manage Cases</h3>
+                <p>Review pending reports, approve or reject submissions.</p>
+                <Link className="home-btn-primary" to="/dashboard">Open Dashboard</Link>
+              </div>
+            )}
             <div className="home-join-card">
               <div className="home-join-icon">👁️</div>
               <h3>Submit Sighting</h3>
@@ -229,7 +255,7 @@ export default function Home() {
           </div>
         </div>
         <div className="home-footer-bottom">
-          <p>© 2026 Missing Diary. All rights reserved. Built to protect lives.</p>
+          <p>{t('home.footer_copyright')}</p>
         </div>
       </footer>
     </div>

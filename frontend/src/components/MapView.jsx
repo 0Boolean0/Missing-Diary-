@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
 const icon = new L.Icon({
@@ -12,22 +12,28 @@ function ClickPicker({ onPick }) {
   return null;
 }
 
-export default function MapView({ center = [23.8103, 90.4125], markers = [], onPick, height = 320 }) {
+export default function MapView({ center = [23.8103, 90.4125], markers = [], onPick, height = 320, draggable = false, polyline = null }) {
   return (
     <div style={{ position: 'relative', height, width: '100%', borderRadius: 14, overflow: 'hidden', zIndex: 0 }}>
-      <MapContainer
-        center={center}
-        zoom={12}
-        style={{ height: '100%', width: '100%' }}
-      >
+      <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }}>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {onPick && <ClickPicker onPick={onPick} />}
-        {/* Fix #24: use stable key instead of array index */}
-        {markers.map((m) => (
-          <Marker key={`${m.lat}-${m.lng}-${m.title}`} position={[Number(m.lat), Number(m.lng)]} icon={icon}>
+        {markers.map((m, i) => (
+          <Marker
+            key={`${m.lat}-${m.lng}-${m.title}`}
+            position={[Number(m.lat), Number(m.lng)]}
+            icon={icon}
+            draggable={draggable && i === 0 && !!onPick}
+            eventHandlers={draggable && i === 0 && onPick ? {
+              dragend(e) { onPick(e.target.getLatLng()); }
+            } : undefined}
+          >
             <Popup><b>{m.title}</b><br />{m.description}</Popup>
           </Marker>
         ))}
+        {polyline && polyline.length > 1 && (
+          <Polyline positions={polyline} color="var(--green)" weight={3} opacity={0.8} />
+        )}
       </MapContainer>
     </div>
   );

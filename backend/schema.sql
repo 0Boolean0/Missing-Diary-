@@ -85,3 +85,50 @@ INSERT INTO users (name,email,password_hash,role,verified) VALUES
 ('Guardian User','guardian@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','guardian',true),
 ('Local User','local@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','local',true);
 -- all seeded passwords: password123
+
+-- ============================================================
+-- Missing Diary Enhancements — Task 1: Schema migrations
+-- Requirements: 7.3, 8.1, 10.9
+-- ============================================================
+
+-- Add new columns to missing_persons (if not already present)
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS name_bn           VARCHAR(120);
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS skin_color        VARCHAR(40);
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS weight            VARCHAR(40);
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS identifying_marks TEXT;
+
+-- Add notes column to audit_logs (if not already present)
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS notes TEXT;
+
+-- Create location_trail table
+CREATE TABLE IF NOT EXISTS location_trail (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  case_id     UUID NOT NULL REFERENCES missing_persons(id) ON DELETE CASCADE,
+  lat         DOUBLE PRECISION NOT NULL,
+  lng         DOUBLE PRECISION NOT NULL,
+  recorded_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_location_trail_case     ON location_trail(case_id);
+CREATE INDEX IF NOT EXISTS idx_location_trail_recorded ON location_trail(recorded_at DESC);
+
+-- Create case_timeline table
+CREATE TABLE IF NOT EXISTS case_timeline (
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  case_id       UUID NOT NULL REFERENCES missing_persons(id) ON DELETE CASCADE,
+  entry_time    TIMESTAMP NOT NULL,
+  location_text TEXT NOT NULL,
+  lat           DOUBLE PRECISION,
+  lng           DOUBLE PRECISION,
+  notes         TEXT,
+  created_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_timeline_case ON case_timeline(case_id);
+
+-- ============================================================
+-- AI Assistive Verification — Schema additions
+-- ============================================================
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS ai_verification_score  INT;
+ALTER TABLE missing_persons ADD COLUMN IF NOT EXISTS ai_flags               TEXT;
