@@ -143,7 +143,7 @@
     - _Preservation: when image is non-null, submit() proceeds normally to the API call_
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 3.7 Verify bug condition exploration test now passes
+  - [~] 3.7 Verify bug condition exploration test now passes
     - **Property 1: Expected Behavior** - Media-less Sighting Returns HTTP 400
     - **IMPORTANT**: Re-run the SAME test from task 1 — do NOT write a new test
     - The test from task 1 encodes the expected behavior: HTTP 400 with "required" in message, no INSERT
@@ -151,7 +151,7 @@
     - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed — `createSighting` now returns 400 for no-file submissions)
     - _Requirements: 2.3, Expected Behavior Properties from design_
 
-  - [ ] 3.8 Verify preservation tests still pass
+  - [~] 3.8 Verify preservation tests still pass
     - **Property 2: Preservation** - Valid Submissions With Media Still Return HTTP 201
     - **IMPORTANT**: Re-run the SAME tests from task 2 — do NOT write new tests
     - Run `backend/src/tests/sighting-preservation.test.js` on the FIXED code
