@@ -71,6 +71,14 @@ CREATE TABLE audit_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Fix #26: indexes on high-frequency query columns
+CREATE INDEX IF NOT EXISTS idx_mp_status     ON missing_persons(status);
+CREATE INDEX IF NOT EXISTS idx_mp_guardian   ON missing_persons(guardian_id);
+CREATE INDEX IF NOT EXISTS idx_mp_created    ON missing_persons(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sightings_person  ON sightings(missing_person_id);
+CREATE INDEX IF NOT EXISTS idx_sightings_created ON sightings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_target  ON audit_logs(target_id);
+
 INSERT INTO users (name,email,password_hash,role,verified) VALUES
 ('Admin','admin@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','admin',true),
 ('Police Officer','police@missingdiary.test','$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2','police',true),

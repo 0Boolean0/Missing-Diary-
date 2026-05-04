@@ -8,12 +8,16 @@ import { api } from '../api/client';
 export default function CaseDetails() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
+  const [error, setError] = useState('');
   const [matches, setMatches] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [loadingMatch, setLoadingMatch] = useState(false);
 
+  // Fix #10: handle load errors instead of staying on "Loading..." forever
   useEffect(() => {
-    api.get(`/cases/${id}`).then(r => setItem(r.data));
+    api.get(`/cases/${id}`)
+      .then(r => setItem(r.data))
+      .catch(err => setError(err.response?.data?.message || 'Failed to load case. You may not have permission to view it.'));
   }, [id]);
 
   async function runAIMatch() {
@@ -26,6 +30,19 @@ export default function CaseDetails() {
     }
     setLoadingMatch(false);
   }
+
+  if (error) return (
+    <>
+      <Navbar />
+      <main className="container">
+        <div className="db-empty" style={{ paddingTop: 60 }}>
+          <div className="db-empty-icon">⚠️</div>
+          <p>{error}</p>
+          <Link className="btn" to="/cases">← Back to Cases</Link>
+        </div>
+      </main>
+    </>
+  );
 
   if (!item) return <><Navbar /><main className="container">Loading...</main></>;
 

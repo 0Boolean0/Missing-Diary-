@@ -30,9 +30,11 @@ export async function optionalAuth(req, res, next) {
   next();
 }
 
+// Fix #3: guard against req.user being null before accessing .role
 export function requireRole(...roles) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) return res.status(403).json({ message: 'Forbidden' });
+    if (!req.user || !roles.includes(req.user.role))
+      return res.status(403).json({ message: 'Forbidden' });
     next();
   };
 }

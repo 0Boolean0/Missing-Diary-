@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import CaseCard from '../components/CaseCard';
 import MapView from '../components/MapView';
@@ -8,7 +9,9 @@ const STATUSES = ['all', 'active', 'verified', 'pending', 'found', 'closed'];
 
 export default function MissingCases() {
   const [cases, setCases] = useState([]);
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  // Fix #23: read ?q= param passed from the Home page search bar
+  const [search, setSearch] = useState(searchParams.get('q') || '');
   const [status, setStatus] = useState('all');
   const [view, setView] = useState('grid'); // grid | map
 

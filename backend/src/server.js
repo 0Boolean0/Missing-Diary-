@@ -13,10 +13,20 @@ dotenv.config();
 const app = express();
 
 app.use(helmet());
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
-  .split(',').map(o => o.trim())
-  .concat(['http://localhost:5174','http://localhost:5175','http://localhost:5176','http://localhost:5177']);
-app.use(cors({ origin: (origin, cb) => (!origin || allowedOrigins.includes(origin) ? cb(null, true) : cb(new Error('CORS: ' + origin))), credentials: true }));
+
+// Fix #12: only include localhost dev origins in non-production environments
+const productionOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',').map(o => o.trim());
+const devOrigins = process.env.NODE_ENV !== 'production'
+  ? ['http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177']
+  : [];
+const allowedOrigins = [...productionOrigins, ...devOrigins];
+
+app.use(cors({
+  origin: (origin, cb) => (!origin || allowedOrigins.includes(origin) ? cb(null, true) : cb(new Error('CORS: ' + origin))),
+  credentials: true
+}));
+
 app.use(express.json({ limit: '1mb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 

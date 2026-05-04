@@ -9,8 +9,8 @@ const sightingSchema = z.object({
   lng: z.coerce.number(),
   description: z.string().min(3),
   confidence_level: z.enum(['sure','maybe','not_sure']).default('maybe'),
-  reporter_name: z.string().optional(),   // anonymous reporter name
-  reporter_phone: z.string().optional(),  // anonymous reporter phone
+  reporter_name: z.string().optional(),
+  reporter_phone: z.string().optional(),
 });
 
 export async function createSighting(req, res, next) {
@@ -31,10 +31,12 @@ export async function createSighting(req, res, next) {
   } catch (e) { next(e); }
 }
 
+// Fix #6: use LEFT JOIN so sightings for deleted cases are not silently dropped
 export async function listSightings(req, res, next) {
   try {
     const result = await query(`SELECT s.*, mp.name AS person_name FROM sightings s
-      JOIN missing_persons mp ON mp.id=s.missing_person_id ORDER BY s.created_at DESC`, []);
+      LEFT JOIN missing_persons mp ON mp.id = s.missing_person_id
+      ORDER BY s.created_at DESC`);
     res.json(result.rows);
   } catch (e) { next(e); }
 }
@@ -54,7 +56,6 @@ export async function updateSightingStatus(req, res, next) {
 export async function matchSightings(req, res, next) {
   try {
     const { caseId } = req.params;
-    // Get the case details
     const caseResult = await query(
       'SELECT name, description, clothing, gender, age, last_seen_location FROM missing_persons WHERE id=$1',
       [caseId]
@@ -62,7 +63,6 @@ export async function matchSightings(req, res, next) {
     if (!caseResult.rows[0]) return res.status(404).json({ message: 'Case not found' });
     const c = caseResult.rows[0];
 
-    // Build keyword set from case
     const caseKeywords = [c.name, c.description, c.clothing, c.gender, c.last_seen_location]
       .filter(Boolean)
       .join(' ')
@@ -70,7 +70,6 @@ export async function matchSightings(req, res, next) {
       .split(/\s+/)
       .filter(w => w.length > 3);
 
-    // Get all sightings for this case
     const sightingsResult = await query(
       `SELECT s.*, u.name AS reporter_name FROM sightings s
        LEFT JOIN users u ON u.id = s.reported_by
@@ -78,7 +77,6 @@ export async function matchSightings(req, res, next) {
       [caseId]
     );
 
-    // Score each sighting by keyword overlap
     const scored = sightingsResult.rows.map(s => {
       const sightingWords = (s.description || '').toLowerCase().split(/\s+/);
       const matches = sightingWords.filter(w => caseKeywords.includes(w));
@@ -88,7 +86,6 @@ export async function matchSightings(req, res, next) {
       return { ...s, ai_match_score: score, ai_matched_keywords: matches };
     });
 
-    // Sort by score descending
     scored.sort((a, b) => b.ai_match_score - a.ai_match_score);
 
     res.json({ case: c, matches: scored });

@@ -38,7 +38,7 @@ export default function Register() {
       <div className="auth-left">
         <div className="auth-left-inner">
           <Link to="/" className="auth-logo">
-            <img src={logoGif} alt="Missing Diary" className="brand-gif" />
+            <img src={logoGif} alt="Missing Diary" className="auth-logo-img" />
           </Link>
           <div className="auth-left-body">
             <h2>Join the Mission.</h2>

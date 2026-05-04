@@ -233,7 +233,7 @@ export default function ReportCase() {
                     {geocoding && (
                       <span style={{
                         position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                        fontSize: 14, color: '#3b82f6'
+                        fontSize: 14, color: '#27AE60'
                       }}>⏳</span>
                     )}
                   </div>
@@ -326,7 +326,7 @@ export default function ReportCase() {
       <style>{`
         .rc-page {
           min-height: 100vh;
-          background: linear-gradient(160deg, #dbeafe 0%, #f0f4ff 40%, #f8fafc 100%);
+          background: linear-gradient(160deg, #eafaf1 0%, #f4fdf7 40%, #f9fafb 100%);
           padding: 32px 16px 64px;
         }
         .rc-container {
@@ -371,7 +371,7 @@ export default function ReportCase() {
         .rc-section-line {
           flex: 1;
           height: 2px;
-          background: linear-gradient(90deg, #1e3a8a 0%, transparent 100%);
+          background: linear-gradient(90deg, #27AE60 0%, transparent 100%);
           border-radius: 2px;
         }
         .rc-section-sub {
@@ -409,8 +409,8 @@ export default function ReportCase() {
         .rc-field input:focus,
         .rc-field select:focus,
         .rc-field textarea:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+          border-color: #27AE60;
+          box-shadow: 0 0 0 3px rgba(39,174,96,.12);
         }
         .rc-field textarea { resize: vertical; }
         .req { color: #ef4444; }
@@ -432,7 +432,7 @@ export default function ReportCase() {
           min-height: 140px;
           overflow: hidden;
         }
-        .rc-dropzone:hover { border-color: #3b82f6; }
+        .rc-dropzone:hover { border-color: #27AE60; }
         .rc-dropzone-inner {
           display: flex;
           flex-direction: column;
@@ -447,7 +447,7 @@ export default function ReportCase() {
         }
         .rc-drop-icon { font-size: 28px; }
         .rc-drop-hint { font-size: 11px; color: #94a3b8; }
-        .rc-browse { color: #3b82f6; text-decoration: underline; }
+        .rc-browse { color: #27AE60; text-decoration: underline; }
         .rc-photo-preview {
           padding: 12px;
           display: flex;
@@ -493,7 +493,7 @@ export default function ReportCase() {
         .rc-btn-submit {
           width: 100%;
           padding: 14px;
-          background: #1e3a8a;
+          background: #27AE60;
           color: #fff;
           border: none;
           border-radius: 10px;
@@ -503,7 +503,7 @@ export default function ReportCase() {
           margin-bottom: 8px;
           transition: background .15s;
         }
-        .rc-btn-submit:hover:not(:disabled) { background: #1e40af; }
+        .rc-btn-submit:hover:not(:disabled) { background: #1e8449; }
         .rc-btn-submit:disabled { opacity: .6; cursor: not-allowed; }
         .rc-required-note {
           text-align: center;

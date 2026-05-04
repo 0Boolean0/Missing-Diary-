@@ -34,7 +34,7 @@ export default function Login() {
       <div className="auth-left">
         <div className="auth-left-inner">
           <Link to="/" className="auth-logo">
-            <img src={logoGif} alt="Missing Diary" className="brand-gif" />
+            <img src={logoGif} alt="Missing Diary" className="auth-logo-img" />
           </Link>
           <div className="auth-left-body">
             <h2>Every Second Counts.</h2>
@@ -139,9 +139,12 @@ export default function Login() {
             Don't have an account? <Link to="/register">Create one free →</Link>
           </p>
 
-          <div className="auth-hint">
-            <p>Test accounts: <code>admin@missingdiary.test</code> / <code>password123</code></p>
-          </div>
+          {/* Fix #20: test credentials only shown in development builds */}
+          {import.meta.env.DEV && (
+            <div className="auth-hint">
+              <p>Test accounts: <code>admin@missingdiary.test</code> / <code>password123</code></p>
+            </div>
+          )}
         </div>
       </div>
     </div>

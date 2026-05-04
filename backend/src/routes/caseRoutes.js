@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /cases — admin/police see all; others see only their own
 router.get('/', optionalAuth, listCases);
 
-// GET /cases/mine — only own cases
+// Fix #5: /mine MUST be defined before /:id — otherwise Express matches "mine" as a UUID param
 router.get('/mine', requireAuth, myCases);
 
 // GET /cases/:id — owner, admin, police only

@@ -22,8 +22,9 @@ export default function MapView({ center = [23.8103, 90.4125], markers = [], onP
       >
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {onPick && <ClickPicker onPick={onPick} />}
-        {markers.map((m, i) => (
-          <Marker key={i} position={[Number(m.lat), Number(m.lng)]} icon={icon}>
+        {/* Fix #24: use stable key instead of array index */}
+        {markers.map((m) => (
+          <Marker key={`${m.lat}-${m.lng}-${m.title}`} position={[Number(m.lat), Number(m.lng)]} icon={icon}>
             <Popup><b>{m.title}</b><br />{m.description}</Popup>
           </Marker>
         ))}

@@ -10,6 +10,7 @@ export default function SubmitSighting() {
   const nav = useNavigate();
   const { user } = useAuth();
   const [cases, setCases] = useState([]);
+  const [casesError, setCasesError] = useState('');
   const [image, setImage] = useState(null);
   const [pos, setPos] = useState({ lat: 23.8103, lng: 90.4125 });
   const [anonymous, setAnonymous] = useState(!user);
@@ -24,8 +25,11 @@ export default function SubmitSighting() {
   const [msg, setMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Fix #11: handle error when cases list fails to load
   useEffect(() => {
-    api.get('/cases').then(r => setCases(r.data));
+    api.get('/cases')
+      .then(r => setCases(r.data))
+      .catch(() => setCasesError('Could not load cases list. Please refresh and try again.'));
   }, []);
 
   async function submit(e) {
@@ -70,6 +74,7 @@ export default function SubmitSighting() {
           </div>
         </div>
 
+        {casesError && <p className="error">{casesError}</p>}
         {msg && <p className="error">{msg}</p>}
 
         <form onSubmit={submit} className="form-grid">

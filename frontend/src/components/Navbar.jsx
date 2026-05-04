@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import logoGif from '../assets/output-onlinegiftools.gif';
 
@@ -8,37 +8,49 @@ export default function Navbar() {
   const [reportOpen, setReportOpen] = useState(false);
   const dropRef = useRef(null);
   const nav = useNavigate();
+  const location = useLocation();
 
-  // Close dropdown on outside click
   useEffect(() => {
-    function handler(e) { if (dropRef.current && !dropRef.current.contains(e.target)) setReportOpen(false); }
+    function handler(e) {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setReportOpen(false);
+    }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   function handleReportClick(path) {
     setReportOpen(false);
-    if (user) {
-      nav(path);
-    } else {
-      nav(`/login?redirect=${encodeURIComponent(path)}`);
-    }
+    nav(user ? path : `/login?redirect=${encodeURIComponent(path)}`);
   }
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <header className="navbar">
+      {/* Brand */}
       <Link to="/" className="brand">
-        <img src={logoGif} alt="Missing Diary" className="brand-gif" />
+        <div className="brand-logo">
+          <img src={logoGif} alt="Missing Diary" className="brand-gif" />
+          <div className="brand-text">
+            <span className="brand-main">Missing Diary</span>
+            <span className="brand-sub">Alert System</span>
+          </div>
+        </div>
       </Link>
+
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/cases">Missing Cases</Link>
-        <Link to="/sightings">Sightings</Link>
+        <Link to="/" style={isActive('/') ? { color: 'var(--text)' } : {}}>Home</Link>
+        <Link to="/cases" style={isActive('/cases') ? { color: 'var(--text)' } : {}}>Missing Cases</Link>
+        <Link to="/sightings" style={isActive('/sightings') ? { color: 'var(--text)' } : {}}>Sightings</Link>
 
         {/* Report Dropdown */}
         <div className="nav-dropdown" ref={dropRef}>
-          <button className="btn small danger" onClick={() => setReportOpen(o => !o)}>
-            Report ▾
+          <button
+            className="btn small danger"
+            onClick={() => setReportOpen(o => !o)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <span>⚠</span> Report ▾
           </button>
           {reportOpen && (
             <div className="nav-dropdown-menu">
@@ -67,10 +79,28 @@ export default function Navbar() {
           )}
         </div>
 
-        {user
-          ? <><Link to="/dashboard">Dashboard</Link><button className="ghost" onClick={logout}>Logout</button></>
-          : <Link className="btn small" to="/login">Login</Link>
-        }
+        {user ? (
+          <>
+            <Link to="/dashboard" style={isActive('/dashboard') ? { color: 'var(--text)' } : {}}>
+              Dashboard
+            </Link>
+            <button
+              className="btn small outline"
+              onClick={logout}
+              style={{ marginLeft: 4 }}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link
+            className="btn small"
+            to="/login"
+            style={{ background: 'var(--green)', marginLeft: 4 }}
+          >
+            Login
+          </Link>
+        )}
       </nav>
     </header>
   );
