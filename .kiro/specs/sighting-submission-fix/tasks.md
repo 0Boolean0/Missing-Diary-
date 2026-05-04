@@ -118,7 +118,7 @@
     - _Preservation: Enter in textarea must still insert a newline_
     - _Requirements: 2.1_
 
-  - [ ] 3.6 Add client-side media validation to `SubmitSighting`
+  - [~] 3.6 Add client-side media validation to `SubmitSighting`
     - File: `frontend/src/pages/SubmitSighting.jsx`
     - Add `imageError` state: `const [imageError, setImageError] = useState('')`
     - At the top of `submit()`, before building `FormData`:
