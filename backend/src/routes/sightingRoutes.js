@@ -10,14 +10,14 @@ router.post('/', optionalAuth, upload.single('image'), createSighting);   // ano
 // Fix #4: matchSightings was fully public — now requires admin or police
 router.get('/match/:caseId', requireAuth, requireRole('admin', 'police'), matchSightings);
 
-router.get('/', requireAuth, requireRole('admin', 'police'), listSightings);
-router.patch('/:id/status', requireAuth, requireRole('admin', 'police'), updateSightingStatus);
+router.get('/', requireAuth, requireRole('admin'), listSightings);
+router.patch('/:id/status', requireAuth, requireRole('admin'), updateSightingStatus);
 
-// Verification action endpoints — admin/police only
-router.post('/:id/approve', requireAuth, requireRole('admin', 'police'), approveSighting);
-router.post('/:id/reject', requireAuth, requireRole('admin', 'police'), rejectSighting);
+// Verification action endpoints — admin only
+router.post('/:id/approve', requireAuth, requireRole('admin'), approveSighting);
+router.post('/:id/reject', requireAuth, requireRole('admin'), rejectSighting);
 
-// Audit history for a sighting — admin/police only
-router.get('/:id/audit', requireAuth, requireRole('admin', 'police'), getSightingAudit);
+// Audit history for a sighting — admin only
+router.get('/:id/audit', requireAuth, requireRole('admin'), getSightingAudit);
 
 export default router;

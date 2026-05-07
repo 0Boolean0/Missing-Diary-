@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node --dns-result-order=ipv4first src/server.js",
-    "db:init": "psql \"$DATABASE_URL\" -f schema.sql"
+    "db:init": "psql \"$DATABASE_URL\" -f schema.sql",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "bcryptjs": "3.0.3",
@@ -21,6 +22,9 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "nodemon": "3.1.14"
+    "fast-check": "^4.7.0",
+    "jest": "^30.3.0",
+    "nodemon": "3.1.14",
+    "supertest": "^7.2.2"
   }
 }

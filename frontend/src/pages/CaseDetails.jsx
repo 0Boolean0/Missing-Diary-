@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import Navbar from '../components/Navbar';
@@ -121,7 +121,7 @@ export default function CaseDetails() {
       <Navbar />
       <main className="container">
         <div className="db-empty" style={{ paddingTop: 60 }}>
-          <div className="db-empty-icon">⚠️</div>
+          <div className="db-empty-icon"></div>
           <p>{error}</p>
           <Link className="btn" to="/cases">{t('case.back')}</Link>
         </div>
@@ -134,16 +134,12 @@ export default function CaseDetails() {
   const image = item.images?.[0] || 'https://placehold.co/600x420?text=Missing+Person';
   const caseUrl = window.location.href;
 
-  // Tracking toggle is visible to the case owner or any guardian
-  const isOwnerOrGuardian =
-    user && (
-      user.role === 'guardian' ||
-      user.id === item.reported_by ||
-      user.id === item.user_id
-    );
+  // Tracking toggle is visible to admin/police only
+  const isOwnerOrGuardian = user && (user.role === 'admin' || user.role === 'police');
 
   const markers = [
     { lat: item.last_seen_lat, lng: item.last_seen_lng, title: 'Last seen', description: item.last_seen_location },
+    // Verified sighting markers only visible to guardian/admin/police (sightings array is empty for others)
     ...(item.sightings || []).filter(s => s.status === 'verified').map(s => ({
       lat: s.lat, lng: s.lng, title: 'Verified sighting', description: s.description
     })),
@@ -211,17 +207,20 @@ export default function CaseDetails() {
             <div className="row gap" style={{ flexWrap: 'wrap' }}>
               <Link className="btn danger" to={`/sighting/${item.id}`}>{t('case.saw_person')}</Link>
               <button className="btn outline" onClick={() => navigator.share?.({ title: item.name, url: caseUrl })}>{t('case.share')}</button>
-              <button className="btn outline" onClick={runAIMatch} disabled={loadingMatch}>
-                {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
-              </button>
+              {/* AI match only for admin/police */}
+              {user && (user.role === 'admin' || user.role === 'police') && (
+                <button className="btn outline" onClick={runAIMatch} disabled={loadingMatch}>
+                  {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
+                </button>
+              )}
             </div>
           </section>
         </div>
 
-        {/* AI Match Results */}
-        {matches !== null && (
+        {/* AI Match Results — only visible to admin/police */}
+        {matches !== null && user && (user.role === 'admin' || user.role === 'police') && (
           <div className="ai-match-box">
-            <h2>🤖 AI Matching Results</h2>
+            <h2>AI Matching Results</h2>
             <p className="muted">Sightings ranked by keyword similarity with case details.</p>
             {matches.length === 0 ? (
               <p className="muted">No sightings found for this case yet.</p>
@@ -238,10 +237,10 @@ export default function CaseDetails() {
                     </div>
                     <p className="ai-match-desc">{m.description}</p>
                     <div className="ai-match-meta">
-                      <span>📍 {m.location_text || 'Unknown location'}</span>
-                      <span>🕐 {new Date(m.created_at).toLocaleString()}</span>
+                      <span>{m.location_text || 'Unknown location'}</span>
+                      <span>{new Date(m.created_at).toLocaleString()}</span>
                       {m.ai_matched_keywords.length > 0 && (
-                        <span>🔑 Keywords: <b>{m.ai_matched_keywords.join(', ')}</b></span>
+                        <span>Keywords: <b>{m.ai_matched_keywords.join(', ')}</b></span>
                       )}
                     </div>
                   </div>
@@ -262,7 +261,7 @@ export default function CaseDetails() {
             </button>
             {isTracking && (
               <span className="live-tracking-indicator">
-                🔴 Live tracking active
+                Live tracking active
               </span>
             )}
           </div>
@@ -279,15 +278,15 @@ export default function CaseDetails() {
             <div className="timeline-item" key={entry.id}>
               <div className="row between" style={{ flexWrap: 'wrap', gap: 6 }}>
                 <b>{new Date(entry.entry_time).toLocaleString()}</b>
-                <span className="muted" style={{ fontSize: 13 }}>📍 {entry.location_text}</span>
+                <span className="muted" style={{ fontSize: 13 }}>{entry.location_text}</span>
               </div>
               {entry.notes && <p style={{ margin: '6px 0 0', fontSize: 14 }}>{entry.notes}</p>}
             </div>
           ))}
         </div>
 
-        {/* Task 18.2: Add Timeline Entry form — visible to authenticated users only */}
-        {user && (
+        {/* Task 18.2: Add Timeline Entry form — visible to admin/police only */}
+        {user && (user.role === 'admin' || user.role === 'police') && (
           <section className="timeline-entry-form" style={{ marginTop: 24 }}>
             <h3 style={{ marginBottom: 14 }}>Add Timeline Entry</h3>
             <form className="form-grid" onSubmit={handleTimelineSubmit}>
@@ -316,31 +315,42 @@ export default function CaseDetails() {
                   />
                 </div>
               </div>
-              <div className="form-row-2">
-                <div>
-                  <label style={{ display: 'block', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
-                    Latitude (optional)
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="e.g. 23.8103"
-                    value={timelineForm.lat}
-                    onChange={e => setTimelineForm(f => ({ ...f, lat: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
-                    Longitude (optional)
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="e.g. 90.4125"
-                    value={timelineForm.lng}
-                    onChange={e => setTimelineForm(f => ({ ...f, lng: e.target.value }))}
-                  />
-                </div>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: 14, marginBottom: 6 }}>
+                  Pin Location on Map (optional)
+                </label>
+                <p className="muted" style={{ fontSize: 12, marginBottom: 8, marginTop: 0 }}>
+                  Click on the map to set the location for this timeline entry.
+                </p>
+                <MapView
+                  center={
+                    timelineForm.lat && timelineForm.lng
+                      ? [Number(timelineForm.lat), Number(timelineForm.lng)]
+                      : [item.last_seen_lat, item.last_seen_lng]
+                  }
+                  markers={
+                    timelineForm.lat && timelineForm.lng
+                      ? [{ lat: Number(timelineForm.lat), lng: Number(timelineForm.lng), title: 'Selected location', description: timelineForm.location_text || '' }]
+                      : []
+                  }
+                  onPick={latlng => setTimelineForm(f => ({ ...f, lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) }))}
+                  height={220}
+                />
+                {timelineForm.lat && timelineForm.lng && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                    <span className="muted" style={{ fontSize: 12 }}>
+                      {Number(timelineForm.lat).toFixed(5)}, {Number(timelineForm.lng).toFixed(5)}
+                    </span>
+                    <button
+                      type="button"
+                      className="db-mini-btn"
+                      style={{ fontSize: 11, padding: '2px 8px' }}
+                      onClick={() => setTimelineForm(f => ({ ...f, lat: '', lng: '' }))}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label style={{ display: 'block', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
@@ -367,3 +377,4 @@ export default function CaseDetails() {
     </>
   );
 }
+

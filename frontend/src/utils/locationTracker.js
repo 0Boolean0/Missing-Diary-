@@ -1,4 +1,4 @@
-// Location tracker utility for live GPS tracking (Guardian side)
+// Location tracker utility for live GPS tracking (admin/police side)
 // Uses setInterval + navigator.geolocation to post coordinates every 30 seconds
 
 let intervalId = null;

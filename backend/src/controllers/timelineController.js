@@ -23,20 +23,15 @@ export async function addTimelineEntry(req, res, next) {
   try {
     const data = timelineSchema.parse(req.body);
 
-    // Check that requester is case owner OR admin/police
+    // Check that requester is admin or police (guardian role removed)
     const caseResult = await query(
-      'SELECT guardian_id FROM missing_persons WHERE id=$1',
+      'SELECT id FROM missing_persons WHERE id=$1',
       [req.params.id]
     );
     if (!caseResult.rows[0]) {
       return res.status(404).json({ message: 'Case not found' });
     }
-    const { guardian_id } = caseResult.rows[0];
-    if (
-      req.user.role !== 'admin' &&
-      req.user.role !== 'police' &&
-      guardian_id !== req.user.id
-    ) {
+    if (req.user.role !== 'admin' && req.user.role !== 'police') {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

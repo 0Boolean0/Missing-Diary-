@@ -1,34 +1,25 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MapView from '../components/MapView';
 import { api } from '../api/client';
 import { describePhoto } from '../utils/aiDescriber';
-import * as offlineQueue from '../utils/offlineQueue';
-
-// Simple UUID v4 generator (no external dependency needed)
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-}
 
 export default function ReportCase() {
   const nav = useNavigate();
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pos, setPos] = useState({ lat: 23.8103, lng: 90.4125 });
   const [geocoding, setGeocoding] = useState(false);
+  const geocodeTimer = useRef(null);
+  const isOnline = navigator.onLine;
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
-  const [msgType, setMsgType] = useState('error'); // 'error' | 'success'
+  const [msgType, setMsgType] = useState('error');
   const [photoError, setPhotoError] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const [queueCount, setQueueCount] = useState(offlineQueue.getAll().length);
 
   const [form, setForm] = useState({
     reporter_name: '',
@@ -49,30 +40,7 @@ export default function ReportCase() {
     last_seen_time: '',
   });
 
-  // 14.2: Track online/offline connectivity
-  useEffect(() => {
-    function handleOnline() {
-      setIsOnline(true);
-    }
-    function handleOffline() {
-      setIsOnline(false);
-    }
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Keep queue count in sync when the custom event fires (from syncQueue)
-  useEffect(() => {
-    function handleQueueUpdate() {
-      setQueueCount(offlineQueue.getAll().length);
-    }
-    window.addEventListener('offlineQueueUpdated', handleQueueUpdate);
-    return () => window.removeEventListener('offlineQueueUpdated', handleQueueUpdate);
-  }, []);
+  // 14.2: Track online/offline connectivity — removed (offline queue no longer needed)
 
   function set(k, v) { setForm(f => ({ ...f, [k]: v })); }
 
@@ -112,7 +80,6 @@ export default function ReportCase() {
       );
       const data = await res.json();
       if (data && data.display_name) {
-        // Build a short readable address
         const a = data.address || {};
         const parts = [
           a.road || a.neighbourhood || a.suburb,
@@ -131,25 +98,28 @@ export default function ReportCase() {
     }
   }
 
-  // 14.3: Capture GPS and enqueue when offline
-  async function submitOffline() {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        // No geolocation available — use current map pin position
-        resolve(pos);
-        return;
+  // Forward geocode: text → map pin (debounced 800ms)
+  function handleLocationTextChange(value) {
+    set('last_seen_location', value);
+    if (geocodeTimer.current) clearTimeout(geocodeTimer.current);
+    if (!value.trim() || value.trim().length < 4) return;
+    geocodeTimer.current = setTimeout(async () => {
+      setGeocoding(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=1&accept-language=en`,
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        const data = await res.json();
+        if (data && data[0]) {
+          setPos({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+        }
+      } catch {
+        // silently ignore
+      } finally {
+        setGeocoding(false);
       }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({ lat: position.coords.latitude, lng: position.coords.longitude });
-        },
-        () => {
-          // On error, fall back to current map pin position
-          resolve(pos);
-        },
-        { timeout: 10000, maximumAge: 60000 }
-      );
-    });
+    }, 800);
   }
 
   async function submit(e) {
@@ -157,33 +127,6 @@ export default function ReportCase() {
     setMsg('');
     setSubmitting(true);
 
-    // 14.3: If offline, capture GPS and enqueue
-    if (!isOnline) {
-      const gpsPos = await submitOffline();
-      const entry = {
-        id: generateUUID(),
-        timestamp: new Date().toISOString(),
-        formData: {
-          ...form,
-          last_seen_lat: gpsPos.lat,
-          last_seen_lng: gpsPos.lng,
-          // Photo file cannot be stored in localStorage — store metadata only
-          photoFileName: photoFile ? photoFile.name : null,
-          photoNote: photoFile ? 'Re-upload required — file cannot be stored offline' : null,
-          videoFileName: videoFile ? videoFile.name : null,
-        },
-      };
-      offlineQueue.enqueue(entry);
-      const newCount = offlineQueue.getAll().length;
-      setQueueCount(newCount);
-      window.dispatchEvent(new CustomEvent('offlineQueueUpdated'));
-      setMsgType('success');
-      setMsg('Your report has been saved and will be submitted when connectivity is restored.');
-      setSubmitting(false);
-      return;
-    }
-
-    // Online path: photo is required
     if (!photoFile) {
       setPhotoError(true);
       setMsgType('error');
@@ -216,27 +159,13 @@ export default function ReportCase() {
 
           {/* Header */}
           <div className="rc-header">
-            <h1>🚨 Report Missing Person</h1>
+            <h1>Report Missing Person</h1>
             <p>Fill in as much detail as possible. Every piece of information helps.</p>
           </div>
 
-          {/* 14.2: Offline banner */}
-          {!isOnline && (
-            <div className="rc-offline-banner">
-              📵 You are offline. Your report will be saved and submitted when connectivity is restored.
-            </div>
-          )}
-
-          {/* 14.5: Pending queue count */}
-          {queueCount > 0 && (
-            <div className="rc-queue-notice">
-              📋 {queueCount} report{queueCount !== 1 ? 's' : ''} pending submission — will be sent when online.
-            </div>
-          )}
-
           {msg && (
             <div className={msgType === 'success' ? 'rc-success' : 'rc-error'}>
-              {msgType === 'success' ? '✅' : <strong>Error:</strong>} {msg}
+              {msgType === 'success' ? '' : <strong>Error:</strong>} {msg}
             </div>
           )}
 
@@ -337,12 +266,12 @@ export default function ReportCase() {
                   <label>Additional Description</label>
                   {aiGenerated && (
                     <div style={{ fontSize: 12, color: '#7c3aed', marginBottom: 4, fontWeight: 600 }}>
-                      ✨ AI-generated — you may edit this
+                      AI-generated — you may edit this
                     </div>
                   )}
                   {aiLoading && (
                     <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
-                      ✨ Generating description...
+                      Generating description...
                     </div>
                   )}
                   <textarea value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe the person in detail — physical features, habits, who they may be with..." rows={4} />
@@ -363,7 +292,7 @@ export default function ReportCase() {
                   <div style={{ position: 'relative' }}>
                     <input
                       value={form.last_seen_location}
-                      onChange={e => set('last_seen_location', e.target.value)}
+                      onChange={e => handleLocationTextChange(e.target.value)}
                       placeholder="Pin on map or type manually"
                       required
                       style={{ paddingRight: geocoding ? 36 : 12 }}
@@ -372,7 +301,9 @@ export default function ReportCase() {
                       <span style={{
                         position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
                         fontSize: 14, color: '#27AE60'
-                      }}>⏳</span>
+                      }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </span>
                     )}
                   </div>
                 </div>
@@ -391,7 +322,7 @@ export default function ReportCase() {
                 height={300}
                 draggable={true}
               />
-              <p className="rc-coords">📍 {pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</p>
+              <p className="rc-coords">{pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</p>
             </div>
 
             {/* ── Section 4: Photos & Videos ── */}
@@ -403,10 +334,9 @@ export default function ReportCase() {
               <p className="rc-section-sub">Upload recent photos or videos to help identify the person</p>
               {isOnline ? null : (
                 <p className="rc-offline-note">
-                  📵 Photo files cannot be stored offline. The file name will be saved — you will need to re-upload the photo when submitting online.
+                  Photo files cannot be stored offline. The file name will be saved — you will need to re-upload the photo when submitting online.
                 </p>
-              )}
-              <div className="rc-grid-2">
+              )}              <div className="rc-grid-2">
                 {/* Photo */}
                 <div className="rc-field">
                   <label>Photo <span className="rc-file-hint">(Max 10MB)</span></label>
@@ -416,13 +346,15 @@ export default function ReportCase() {
                         <img src={photoPreview} alt="preview" />
                         <div className="rc-photo-meta">
                           <span className="rc-filename">{photoFile?.name}</span>
-                          <span className="rc-ready">✔ Ready</span>
+                          <span className="rc-ready">Ready</span>
                         </div>
                         <button type="button" className="rc-remove-btn" onClick={e => { e.preventDefault(); setPhotoFile(null); setPhotoPreview(null); }}>Remove</button>
                       </div>
                     ) : (
                       <div className="rc-dropzone-inner">
-                        <span className="rc-drop-icon">🖼️</span>
+                        <span className="rc-drop-icon">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </span>
                         <span>Drag &amp; drop or <span className="rc-browse">browse</span></span>
                         <span className="rc-drop-hint">jpg, png, webp</span>
                         {photoError && <span className="rc-drop-required">Photo is required</span>}
@@ -438,16 +370,20 @@ export default function ReportCase() {
                   <label className="rc-dropzone" htmlFor="video-input">
                     {videoFile ? (
                       <div className="rc-photo-preview">
-                        <div className="rc-video-icon">🎬</div>
+                        <div className="rc-video-icon">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        </div>
                         <div className="rc-photo-meta">
                           <span className="rc-filename">{videoFile.name}</span>
-                          <span className="rc-ready">✔ Ready</span>
+                          <span className="rc-ready">Ready</span>
                         </div>
                         <button type="button" className="rc-remove-btn" onClick={e => { e.preventDefault(); setVideoFile(null); }}>Remove</button>
                       </div>
                     ) : (
                       <div className="rc-dropzone-inner">
-                        <span className="rc-drop-icon">🎬</span>
+                        <span className="rc-drop-icon">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        </span>
                         <span>Drag &amp; drop or <span className="rc-browse">browse</span></span>
                         <span className="rc-drop-hint">mp4, quicktime, webm</span>
                       </div>
@@ -460,11 +396,7 @@ export default function ReportCase() {
 
             {/* Submit */}
             <button type="submit" className="rc-btn-submit" disabled={submitting}>
-              {submitting
-                ? '⏳ Submitting...'
-                : isOnline
-                  ? '🚨 Submit Report'
-                  : '💾 Save Report (Offline)'}
+              {submitting ? 'Submitting...' : 'Submit Report'}
             </button>
             <p className="rc-required-note">* Required fields</p>
 
@@ -719,3 +651,4 @@ export default function ReportCase() {
     </>
   );
 }
+

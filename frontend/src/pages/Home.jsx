@@ -58,7 +58,9 @@ export default function Home() {
 
           {/* Search */}
           <form className="home-search-bar" onSubmit={handleSearch}>
-            <span className="home-search-icon">🔍</span>
+            <span className="home-search-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -68,23 +70,14 @@ export default function Home() {
           </form>
 
           {/* CTAs — red for emergency report, outline for sighting */}
-          {!isAdmin && (
-            <div className="home-hero-btns">
-              <Link className="home-btn-primary" to="/report">
-                {t('home.report_btn')}
-              </Link>
-              <Link className="home-btn-outline" to="/sighting">
-                {t('home.sighting_btn')}
-              </Link>
-            </div>
-          )}
-          {isAdmin && (
-            <div className="home-hero-btns">
-              <Link className="home-btn-outline" to="/dashboard">
-                📋 Go to Dashboard
-              </Link>
-            </div>
-          )}
+          <div className="home-hero-btns">
+            <Link className="home-btn-primary" to="/report">
+              {t('home.report_btn')}
+            </Link>
+            <Link className="home-btn-outline" to="/sighting">
+              {t('home.sighting_btn')}
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -121,10 +114,10 @@ export default function Home() {
           <p className="home-section-sub">{t('home.how_sub')}</p>
           <div className="home-steps">
             {[
-              { icon: '📋', step: '01', title: 'Submit a Report', desc: 'File a missing person report with photo, description, and last seen location.' },
-              { icon: '🔔', step: '02', title: 'Instant Alert', desc: 'Our system creates a unique Case ID and shareable poster immediately.' },
-              { icon: '🤝', step: '03', title: 'Community Response', desc: 'Citizens submit sightings. Smart matching connects found persons to cases.' },
-              { icon: '🏠', step: '04', title: 'Safe Reunion', desc: 'Guardian verification, documentation, and post-reunion support.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>, step: '01', title: 'Submit a Report', desc: 'File a missing person report with photo, description, and last seen location.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, step: '02', title: 'Instant Alert', desc: 'Our system creates a unique Case ID and shareable poster immediately.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>, step: '03', title: 'Community Response', desc: 'Citizens submit sightings. Smart matching connects found persons to cases.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, step: '04', title: 'Safe Reunion', desc: 'Guardian verification, documentation, and post-reunion support.' },
             ].map(s => (
               <div className="home-step" key={s.step}>
                 <div className="home-step-icon">{s.icon}</div>
@@ -138,7 +131,6 @@ export default function Home() {
       </section>
 
       {/* ── RECENT ALERTS ── */}
-      {!isAdmin && (
       <section className="home-section home-alerts-section">
         <div className="home-section-inner">
           <div className="home-section-label">{t('home.recent_label')}</div>
@@ -154,7 +146,9 @@ export default function Home() {
 
           {recent.length === 0 ? (
             <div className="home-empty">
-              <span>📭</span>
+              <span style={{ display: 'block', marginBottom: 16 }}>
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              </span>
               <p>{t('home.no_cases')}</p>
               <Link className="home-btn-primary" to="/report">Report a Missing Person</Link>
             </div>
@@ -165,7 +159,6 @@ export default function Home() {
           )}
         </div>
       </section>
-      )}
 
       {/* ── FEATURES ── */}
       <section className="home-section home-features-section">
@@ -175,12 +168,12 @@ export default function Home() {
           <p className="home-section-sub">Built for speed, privacy, and coordination across agencies.</p>
           <div className="home-features-grid">
             {[
-              { icon: '⚡', title: 'No Waiting Time', desc: 'Report instantly. Every second counts when finding missing persons.' },
-              { icon: '📍', title: 'GPS Location Tracking', desc: 'Map-based reporting with precise location marking for last seen spot.' },
-              { icon: '🕵️', title: 'Anonymous Reporting', desc: 'Submit information anonymously. Your identity stays protected.' },
-              { icon: '🔒', title: 'Privacy First', desc: 'Found persons\' identities are protected until verified reunion.' },
-              { icon: '🏛️', title: 'Multi-Agency Coordination', desc: 'Police, NGOs, hospitals and shelters work together seamlessly.' },
-              { icon: '📱', title: 'QR Code Case Tracking', desc: 'Unique Case IDs with QR codes for easy sharing and tracking.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>, title: 'No Waiting Time', desc: 'Report instantly. Every second counts when finding missing persons.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, title: 'GPS Location Tracking', desc: 'Map-based reporting with precise location marking for last seen spot.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, title: 'Anonymous Reporting', desc: 'Submit information anonymously. Your identity stays protected.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, title: 'Privacy First', desc: 'Found persons\' identities are protected until verified reunion.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>, title: 'Multi-Agency Coordination', desc: 'Police, NGOs, hospitals and shelters work together seamlessly.' },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>, title: 'QR Code Case Tracking', desc: 'Unique Case IDs with QR codes for easy sharing and tracking.' },
             ].map(f => (
               <div className="home-feature-card" key={f.title}>
                 <div className="home-feature-icon">{f.icon}</div>
@@ -200,33 +193,28 @@ export default function Home() {
           <p className="home-section-sub">Play your role in protecting children and missing persons across Bangladesh.</p>
           <div className="home-join-cards">
             <div className="home-join-card">
-              <div className="home-join-icon">🙋</div>
-              <h3>Volunteer</h3>
-              <p>Give your time and skills to help find missing persons.</p>
-              <Link className="home-btn-outline-white" to="/register">Get Started</Link>
+              <div className="home-join-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <h3>Witness</h3>
+              <p>Saw someone who might be missing? Submit a sighting report.</p>
+              <Link className="home-btn-outline-white" to="/sighting">Submit Sighting</Link>
             </div>
-            {/* Featured card — hidden for admin/police */}
-            {!isAdmin && (
-              <div className="home-join-card home-join-card-featured">
-                <div className="home-join-icon">🚨</div>
-                <h3>Report a Case</h3>
-                <p>Know someone missing? File a report immediately.</p>
-                <Link className="home-btn-primary" to="/report">Report Now</Link>
+            <div className="home-join-card home-join-card-featured">
+              <div className="home-join-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               </div>
-            )}
-            {isAdmin && (
-              <div className="home-join-card home-join-card-featured">
-                <div className="home-join-icon">🛡️</div>
-                <h3>Manage Cases</h3>
-                <p>Review pending reports, approve or reject submissions.</p>
-                <Link className="home-btn-primary" to="/dashboard">Open Dashboard</Link>
-              </div>
-            )}
+              <h3>Report a Case</h3>
+              <p>Know someone missing? File a report immediately — no account needed.</p>
+              <Link className="home-btn-primary" to="/report">Report Now</Link>
+            </div>
             <div className="home-join-card">
-              <div className="home-join-icon">👁️</div>
-              <h3>Submit Sighting</h3>
-              <p>Saw someone who might be missing? Let us know.</p>
-              <Link className="home-btn-green" to="/sighting">Submit Info</Link>
+              <div className="home-join-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h3>Browse Cases</h3>
+              <p>View all active missing person cases and help spread the word.</p>
+              <Link className="home-btn-green" to="/cases">View Cases</Link>
             </div>
           </div>
         </div>
@@ -246,12 +234,17 @@ export default function Home() {
             <Link to="/report">Report Missing Person</Link>
             <Link to="/sighting">Submit a Sighting</Link>
             <Link to="/cases">Active Cases</Link>
-            <Link to="/register">Join Us</Link>
           </div>
           <div className="home-footer-contact">
             <h4>Emergency Contact</h4>
-            <p>📞 National Helpline: <strong>999</strong></p>
-            <p>📧 support@missingdiary.com</p>
+            <p>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:'middle',marginRight:4}}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              National Helpline: <strong>999</strong>
+            </p>
+            <p>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:'middle',marginRight:4}}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              support@missingdiary.com
+            </p>
           </div>
         </div>
         <div className="home-footer-bottom">

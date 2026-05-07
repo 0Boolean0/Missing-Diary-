@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { query } from '../config/db.js';
 import { uploadBufferToCloudinary } from '../utils/cloudinaryUpload.js';
+import { verifyReportWithAI } from '../utils/aiVerifier.js';
 
 const sightingSchema = z.object({
-  missing_person_id: z.string().uuid(),
+  missing_person_id: z.string().min(1),  // TEXT id like missing-report_001
   location_text: z.string().optional(),
   lat: z.coerce.number(),
   lng: z.coerce.number(),
@@ -16,16 +17,27 @@ const sightingSchema = z.object({
 export async function createSighting(req, res, next) {
   try {
     const data = sightingSchema.parse(req.body);
+    if (!req.file) {
+      return res.status(400).json({ message: 'A photo or video is required to submit a sighting.' });
+    }
     let imageUrl = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, 'missing-diary/sightings');
       imageUrl = uploaded.secure_url;
     }
+    const aiResult = await verifyReportWithAI({
+      description: data.description,
+      last_seen_location: data.location_text,
+    });
+    const aiScore = aiResult?.score ?? null;
+    const aiFlags = aiResult?.flags?.length > 0 ? aiResult.flags.join('; ') : null;
     // req.user may be null for anonymous submissions
     const result = await query(`INSERT INTO sightings
-      (missing_person_id,reported_by,location_text,lat,lng,description,image_url,confidence_level,status)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending') RETURNING *`,
-      [data.missing_person_id, req.user?.id || null, data.location_text || null, data.lat, data.lng, data.description, imageUrl, data.confidence_level]
+      (missing_person_id, reported_by, reporter_name, reporter_phone, location_text, lat, lng, description,
+       image_url, confidence_level, status, ai_score, ai_flags)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending',$11,$12) RETURNING *`,
+      [data.missing_person_id, req.user?.id || null, data.reporter_name || null, data.reporter_phone || null,
+       data.location_text || null, data.lat, data.lng, data.description, imageUrl, data.confidence_level, aiScore, aiFlags]
     );
     res.status(201).json(result.rows[0]);
   } catch (e) { next(e); }
