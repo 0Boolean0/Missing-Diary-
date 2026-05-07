@@ -6,6 +6,7 @@ import MapView from '../components/MapView';
 import { api } from '../api/client';
 import { useLang } from '../context/LangContext';
 
+<<<<<<< HEAD
 const STATUSES = ['all', 'active', 'verified', 'pending', 'found', 'closed'];
 const GENDERS  = ['All Genders', 'Male', 'Female'];
 
@@ -22,6 +23,18 @@ function getDistricts(cases) {
   });
   return ['All Districts', ...Array.from(set).sort()];
 }
+=======
+// 4.2 — 'pending' removed; public users only see verified/active/found/closed
+const STATUSES = ['all', 'active', 'verified', 'found', 'closed'];
+
+const STATUS_LABELS = {
+  all: 'All Cases',
+  active: '🔴 Active',
+  verified: '✅ Verified',
+  found: '🏠 Found',
+  closed: '📁 Closed',
+};
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
 export default function MissingCases() {
   const [cases, setCases]           = useState([]);
@@ -56,12 +69,18 @@ export default function MissingCases() {
   }));
 
   return (
-    <>
+    <div className="cases-page-bg">
       <Navbar />
       <main className="container">
+<<<<<<< HEAD
 
         {/* ── Header ── */}
         <div className="mc-header">
+=======
+        {/* Header */}
+        <div className="cases-header">
+<<<<<<< Updated upstream
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
           <div>
             <h1 className="mc-title">{t('cases.title')}</h1>
             <p className="mc-subtitle">
@@ -94,8 +113,15 @@ export default function MissingCases() {
               Map
             </button>
           </div>
+=======
+          <h1>Missing Cases</h1>
+          <p className="muted">
+            Search through <strong>{cases.length}</strong> cases. Submit sightings to help reunite families.
+          </p>
+>>>>>>> Stashed changes
         </div>
 
+<<<<<<< HEAD
         {/* ── Search bar ── */}
         <div className="mc-search-wrap">
           <div className="mc-search-box">
@@ -111,6 +137,29 @@ export default function MissingCases() {
             {search && (
               <button className="mc-search-clear" onClick={() => setSearch('')} aria-label="Clear search">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+=======
+        {/* Filters */}
+        <div className="cases-filters">
+          <input
+            className="cases-search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+<<<<<<< Updated upstream
+            placeholder={t('cases.search_placeholder')}
+=======
+            placeholder="🔍 Search by name, age, location..."
+            aria-label="Search cases"
+>>>>>>> Stashed changes
+          />
+          <div className="cases-status-tabs">
+            {STATUSES.map(s => (
+              <button
+                key={s}
+                className={`status-tab ${status === s ? 'active' : ''}`}
+                onClick={() => setStatus(s)}
+              >
+                {STATUS_LABELS[s]}
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
               </button>
             )}
           </div>
@@ -128,6 +177,7 @@ export default function MissingCases() {
           </button>
         </div>
 
+<<<<<<< HEAD
         {/* ── Expanded filter dropdowns ── */}
         {filtersOpen && (
           <div className="mc-filter-row">
@@ -138,6 +188,11 @@ export default function MissingCases() {
             >
               {districts.map(d => <option key={d}>{d}</option>)}
             </select>
+=======
+        <div className="cases-count">
+          Showing <strong>{filtered.length}</strong> of <strong>{cases.length}</strong> cases
+        </div>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
             <select
               className="mc-select"
@@ -166,14 +221,28 @@ export default function MissingCases() {
         {/* ── Grid ── */}
         {view === 'grid' && (
           filtered.length === 0
+<<<<<<< HEAD
             ? <div className="db-empty"><div className="db-empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></div><p>{t('cases.no_cases')}</p></div>
             : <div className="mun-cards-grid">{filtered.map(c => <CaseCard item={c} key={c.id} />)}</div>
+=======
+<<<<<<< Updated upstream
+            ? <div className="db-empty"><div className="db-empty-icon">📭</div><p>{t('cases.no_cases')}</p></div>
+=======
+            ? (
+              <div className="db-empty">
+                <div className="db-empty-icon">📭</div>
+                <p>No cases found matching your search.</p>
+              </div>
+            )
+>>>>>>> Stashed changes
+            : <div className="grid cards">{filtered.map(c => <CaseCard item={c} key={c.id} />)}</div>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
         )}
 
         {/* ── Map ── */}
         {view === 'map' && <MapView markers={markers} height={520} />}
 
       </main>
-    </>
+    </div>
   );
 }

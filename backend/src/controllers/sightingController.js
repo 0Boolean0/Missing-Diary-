@@ -55,10 +55,12 @@ export async function listSightings(req, res, next) {
 
 export async function updateSightingStatus(req, res, next) {
   try {
-    const schema = z.object({ status: z.enum(['pending','verified','rejected']) });
+    // 4.7 — added 'flagged' to accepted statuses
+    const schema = z.object({ status: z.enum(['pending','verified','rejected','flagged']) });
     const { status } = schema.parse(req.body);
     const result = await query('UPDATE sightings SET status=$1 WHERE id=$2 RETURNING *', [status, req.params.id]);
     if (!result.rows[0]) return res.status(404).json({ message: 'Sighting not found' });
+    // 4.7 — audit log for all statuses including 'flagged'
     await query('INSERT INTO audit_logs (user_id,action,target_type,target_id) VALUES ($1,$2,$3,$4)', [req.user.id, `Updated sighting status to ${status}`, 'sighting', req.params.id]);
     res.json(result.rows[0]);
   } catch (e) { next(e); }

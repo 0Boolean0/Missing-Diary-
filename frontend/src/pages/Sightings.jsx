@@ -14,7 +14,12 @@ export default function Sightings() {
   const [casesError, setCasesError] = useState('');
   const [image, setImage] = useState(null);
   const [pos, setPos] = useState({ lat: 23.8103, lng: 90.4125 });
+<<<<<<< HEAD
   const [anonymous, setAnonymous] = useState(true);
+=======
+  const [geocoding, setGeocoding] = useState(false);
+  const [anonymous, setAnonymous] = useState(!user);
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
   const [submitted, setSubmitted] = useState(false);
   const [msg, setMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -34,10 +39,39 @@ export default function Sightings() {
       .catch(() => setCasesError('Could not load cases list. Please refresh and try again.'));
   }, []);
 
+<<<<<<< HEAD
   // If a case id comes from the URL param, pre-select it
   useEffect(() => {
     if (paramId) setForm(f => ({ ...f, missing_person_id: paramId }));
   }, [paramId]);
+=======
+  async function handleMapPick(latlng) {
+    setPos(latlng);
+    setGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json&accept-language=en`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const data = await res.json();
+      if (data?.display_name) {
+        const a = data.address || {};
+        const parts = [
+          a.road || a.neighbourhood || a.suburb,
+          a.city_district || a.suburb || a.town || a.village,
+          a.city || a.county,
+          a.state,
+        ].filter(Boolean);
+        const short = parts.length ? parts.join(', ') : data.display_name;
+        setForm(f => ({ ...f, location_text: short }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setGeocoding(false);
+    }
+  }
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
   async function submit(e) {
     e.preventDefault();
@@ -68,12 +102,19 @@ export default function Sightings() {
         <Navbar />
         <main className="container narrow">
           <div className="db-empty" style={{ paddingTop: 80 }}>
+<<<<<<< HEAD
             <div className="db-empty-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <h2>Sighting Submitted!</h2>
             <p className="muted">Thank you. Your report has been received and will be reviewed by our team.</p>
             <div className="row gap" style={{ justifyContent: 'center', marginTop: 16 }}>
+=======
+            <div className="db-empty-icon">✅</div>
+            <h2 style={{ color: 'var(--success)', margin: '0 0 8px' }}>Sighting Submitted!</h2>
+            <p className="muted">Thank you. Your report has been received and will be reviewed.</p>
+            <div className="row gap" style={{ justifyContent: 'center', marginTop: 20 }}>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
               <button className="btn" onClick={() => {
                 setSubmitted(false);
                 setForm({ missing_person_id: '', location_text: '', description: '', confidence_level: 'maybe', reporter_name: '', reporter_phone: '' });
@@ -92,7 +133,7 @@ export default function Sightings() {
   return (
     <>
       <Navbar />
-      <main className="container narrow">
+      <main className="container narrow" style={{ paddingBottom: 60 }}>
         <div className="sighting-page-header">
           <h1>{t('sighting.title')}</h1>
           <p className="muted">{t('sighting.sub')}</p>
@@ -114,14 +155,26 @@ export default function Sightings() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </span>
             <div>
+<<<<<<< HEAD
               <b>{t('sighting.with_contact')}</b>
+=======
+              <b>With Contact Info</b>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
               <p>Provide name &amp; phone for follow-up</p>
             </div>
           </div>
         </div>
 
+<<<<<<< HEAD
         {casesError && <p className="error">{casesError}</p>}
         {msg && <p className="error">{msg}</p>}
+=======
+        {msg && (
+          <div style={{ background: 'var(--danger-bg)', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 16, color: '#991b1b', fontSize: 14 }}>
+            ⚠️ {msg}
+          </div>
+        )}
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
         <form
           onSubmit={submit}
@@ -130,8 +183,13 @@ export default function Sightings() {
         >
           {/* Select missing person */}
           <div>
+<<<<<<< HEAD
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
               Select Missing Person <span style={{ color: 'var(--red)' }}>*</span>
+=======
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+              Select Missing Person <span style={{ color: 'var(--danger)' }}>*</span>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
             </label>
             <select
               value={form.missing_person_id}
@@ -161,12 +219,26 @@ export default function Sightings() {
             </div>
           )}
 
+<<<<<<< HEAD
           {/* Location text */}
           <input
             value={form.location_text}
             onChange={e => setForm({ ...form, location_text: e.target.value })}
             placeholder="Location name (e.g. Mirpur 10, Dhaka)"
           />
+=======
+          <div style={{ position: 'relative' }}>
+            <input
+              value={form.location_text}
+              onChange={e => setForm({ ...form, location_text: e.target.value })}
+              placeholder="📍 Location name (e.g. Mirpur 10, Dhaka)"
+              style={{ paddingRight: geocoding ? 36 : undefined }}
+            />
+            {geocoding && (
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--primary)' }}>⏳</span>
+            )}
+          </div>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
           {/* Description */}
           <textarea
@@ -178,7 +250,7 @@ export default function Sightings() {
 
           {/* Confidence level */}
           <div>
-            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>Confidence Level</label>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Confidence Level</label>
             <select
               value={form.confidence_level}
               onChange={e => setForm({ ...form, confidence_level: e.target.value })}
@@ -198,14 +270,23 @@ export default function Sightings() {
 
           {/* Map pin */}
           <div>
+<<<<<<< HEAD
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
               Pin the location on the map
+=======
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+              📍 Pin the location on the map
+              <span style={{ color: 'var(--muted)', fontWeight: 400 }}> (click to auto-fill address)</span>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
             </label>
             <MapView
               center={[pos.lat, pos.lng]}
               markers={[{ lat: pos.lat, lng: pos.lng, title: 'Sighting location' }]}
-              onPick={latlng => setPos(latlng)}
+              onPick={handleMapPick}
             />
+            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0 0' }}>
+              📍 {pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}
+            </p>
           </div>
 
           {anonymous && (
@@ -214,8 +295,13 @@ export default function Sightings() {
             </div>
           )}
 
+<<<<<<< HEAD
           <button type="submit" className="btn full danger" disabled={submitting}>
             {submitting ? t('sighting.submitting') : `${t('sighting.submit')}`}
+=======
+          <button className="btn full danger" disabled={submitting} style={{ padding: '14px', fontSize: 15, fontWeight: 800, borderRadius: 10 }}>
+            {submitting ? '⏳ Submitting...' : '📤 Submit Sighting'}
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
           </button>
         </form>
       </main>

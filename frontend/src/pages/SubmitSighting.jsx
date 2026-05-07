@@ -1,21 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { User, MapPin, Eye, Phone, CheckCircle, HelpCircle, AlertCircle, Camera, EyeOff, UserCheck, HeartHandshake, CheckCheck } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import MapView from '../components/MapView';
 import { api } from '../api/client';
 import { useLang } from '../context/LangContext';
 
 const STEPS = [
-  { id: 1, labelKey: 'sighting.step1_title', icon: '👤' },
-  { id: 2, labelKey: 'sighting.step2_title', icon: '📍' },
-  { id: 3, labelKey: 'sighting.step3_title', icon: '👁️' },
-  { id: 4, labelKey: 'sighting.step4_title', icon: '📞' },
+  { id: 1, labelKey: 'sighting.step1_title', Icon: User },
+  { id: 2, labelKey: 'sighting.step2_title', Icon: MapPin },
+  { id: 3, labelKey: 'sighting.step3_title', Icon: Eye },
+  { id: 4, labelKey: 'sighting.step4_title', Icon: Phone },
 ];
 
 const CONFIDENCE = [
-  { value: 'sure',     emoji: '✅', labelKey: 'sighting.confidence_sure',     descKey: 'sighting.confidence_sure_desc' },
-  { value: 'maybe',    emoji: '🤔', labelKey: 'sighting.confidence_maybe',    descKey: 'sighting.confidence_maybe_desc' },
-  { value: 'not_sure', emoji: '❓', labelKey: 'sighting.confidence_not_sure', descKey: 'sighting.confidence_not_sure_desc' },
+  { value: 'sure',     Icon: CheckCircle,  labelKey: 'sighting.confidence_sure',     descKey: 'sighting.confidence_sure_desc' },
+  { value: 'maybe',   Icon: HelpCircle,   labelKey: 'sighting.confidence_maybe',    descKey: 'sighting.confidence_maybe_desc' },
+  { value: 'not_sure', Icon: AlertCircle, labelKey: 'sighting.confidence_not_sure', descKey: 'sighting.confidence_not_sure_desc' },
 ];
 
 export default function SubmitSighting() {
@@ -28,6 +29,7 @@ export default function SubmitSighting() {
   const [casesError, setCasesError] = useState('');
   const [pos, setPos] = useState({ lat: 23.8103, lng: 90.4125 });
   const [geocoding, setGeocoding] = useState(false);
+<<<<<<< HEAD
   const geocodeTimer = useRef(null);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -36,6 +38,9 @@ export default function SubmitSighting() {
   const [error, setError] = useState('');
   const [anonymous, setAnonymous] = useState(true);
 
+=======
+  const [anonymous, setAnonymous] = useState(!user);
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
   const [form, setForm] = useState({
     missing_person_id: id || '',
     location_text: '',
@@ -52,6 +57,7 @@ export default function SubmitSighting() {
       .catch(() => setCasesError('Could not load cases. Please refresh.'));
   }, []);
 
+<<<<<<< HEAD
   function set(k, v) { setForm(f => ({ ...f, [k]: v })); }
 
   function handleImage(e) {
@@ -78,6 +84,8 @@ export default function SubmitSighting() {
     }, 800);
   }
 
+=======
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
   async function handleMapPick(latlng) {
     setPos(latlng);
     setGeocoding(true);
@@ -95,6 +103,7 @@ export default function SubmitSighting() {
           a.city || a.county,
           a.state,
         ].filter(Boolean);
+<<<<<<< HEAD
         set('location_text', parts.length ? parts.join(', ') : data.display_name);
       }
     } catch { /* ignore */ } finally { setGeocoding(false); }
@@ -106,6 +115,16 @@ export default function SubmitSighting() {
     if (step === 2 && !form.location_text.trim()) { setError(t('sighting.error_location')); return; }
     if (step === 3 && !form.description.trim()) { setError(t('sighting.error_description')); return; }
     setStep(s => s + 1);
+=======
+        const short = parts.length ? parts.join(', ') : data.display_name;
+        setForm(f => ({ ...f, location_text: short }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setGeocoding(false);
+    }
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
   }
 
   async function submit(e) {
@@ -142,7 +161,9 @@ export default function SubmitSighting() {
         <Navbar />
         <div style={styles.page}>
           <div style={styles.successBox}>
-            <div style={styles.successIcon}>🙏</div>
+            <div style={styles.successIcon}>
+              <HeartHandshake size={52} color="#27AE60" strokeWidth={1.5} />
+            </div>
             <h2 style={styles.successTitle}>{t('sighting.success_title')}</h2>
             <p style={styles.successSub}>{t('sighting.success_sub')}</p>
             {selectedCase && (
@@ -162,15 +183,32 @@ export default function SubmitSighting() {
   return (
     <>
       <Navbar />
+<<<<<<< HEAD
       <div style={styles.page}>
         <div style={styles.container}>
+=======
+<<<<<<< Updated upstream
+      <main className="container narrow">
+        <h1>{t('sighting.title')}</h1>
+        <p className="muted">{t('sighting.sub')}</p>
+=======
+      <main className="container narrow" style={{ paddingBottom: 60 }}>
+        <div className="sighting-page-header">
+          <h1>👁️ Submit a Sighting</h1>
+          <p className="muted">Your information can help bring someone home.</p>
+        </div>
+>>>>>>> Stashed changes
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
 
           {/* Header */}
           <div style={styles.header}>
-            <div style={styles.headerIcon}>👁️</div>
+            <div style={styles.headerIcon}>
+              <Eye size={40} color="#27AE60" strokeWidth={1.5} />
+            </div>
             <h1 style={styles.title}>{t('sighting.title')}</h1>
             <p style={styles.subtitle}>{t('sighting.sub')}</p>
           </div>
+<<<<<<< HEAD
 
           {/* Step indicator */}
           <div style={styles.stepBar}>
@@ -182,7 +220,10 @@ export default function SubmitSighting() {
                   color: step >= s.id ? '#fff' : '#9ca3af',
                   transform: step === s.id ? 'scale(1.15)' : 'scale(1)',
                 }}>
-                  {step > s.id ? '✓' : s.id}
+                  {step > s.id
+                    ? <CheckCheck size={14} />
+                    : <s.Icon size={14} />
+                  }
                 </div>
                 <span style={{ ...styles.stepLabel, color: step === s.id ? '#27AE60' : '#9ca3af', fontWeight: step === s.id ? 700 : 400 }}>
                   {t(s.labelKey).replace(/^[^\w\s]*\s*/, '')}
@@ -208,7 +249,7 @@ export default function SubmitSighting() {
                   {cases.map(c => (
                     <div key={c.id} onClick={() => set('missing_person_id', c.id)}
                       style={{ ...styles.caseOption, border: form.missing_person_id === c.id ? '2px solid #27AE60' : '2px solid #e5e7eb', background: form.missing_person_id === c.id ? '#f0fdf4' : '#fff' }}>
-                      <div style={styles.caseOptionCheck}>{form.missing_person_id === c.id && <span style={{ color: '#27AE60', fontWeight: 700 }}>✓</span>}</div>
+                      <div style={styles.caseOptionCheck}>{form.missing_person_id === c.id && <CheckCircle size={16} color="#27AE60" />}</div>
                       <div style={styles.caseOptionName}>{c.name}</div>
                       <div style={styles.caseOptionMeta}>{c.age && <span>{c.age} yrs</span>}{c.gender && <span> · {c.gender}</span>}</div>
                       <div style={styles.caseOptionLoc}>Last seen: {c.last_seen_location}</div>
@@ -260,7 +301,7 @@ export default function SubmitSighting() {
                     {CONFIDENCE.map(c => (
                       <div key={c.value} onClick={() => set('confidence_level', c.value)}
                         style={{ ...styles.confidenceCard, border: form.confidence_level === c.value ? '2px solid #27AE60' : '2px solid #e5e7eb', background: form.confidence_level === c.value ? '#f0fdf4' : '#fff' }}>
-                        <span style={{ fontSize: 22 }}>{c.emoji}</span>
+                        <c.Icon size={22} color={form.confidence_level === c.value ? '#27AE60' : '#9ca3af'} />
                         <span style={{ fontWeight: 700, fontSize: 14 }}>{t(c.labelKey)}</span>
                         <span style={{ fontSize: 12, color: '#6b7280' }}>{t(c.descKey)}</span>
                       </div>
@@ -273,12 +314,14 @@ export default function SubmitSighting() {
                     {imagePreview ? (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                         <img src={imagePreview} alt="preview" style={{ width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 8 }} />
-                        <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600 }}>{t('sighting.photo_attached')}</span>
+                        <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <CheckCircle size={14} color="#16a34a" /> {t('sighting.photo_attached')}
+                        </span>
                         <button type="button" style={styles.removeBtn} onClick={e => { e.preventDefault(); setImageFile(null); setImagePreview(null); }}>{t('sighting.photo_remove')}</button>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '20px 0', color: '#9ca3af' }}>
-                        <span style={{ fontSize: 28 }}>📷</span>
+                        <Camera size={28} color="#9ca3af" strokeWidth={1.5} />
                         <span style={{ fontSize: 13 }}>{t('sighting.photo_tap')}</span>
                         <span style={{ fontSize: 11 }}>jpg, png, webp</span>
                       </div>
@@ -296,20 +339,20 @@ export default function SubmitSighting() {
                 <p style={styles.stepSub}>{t('sighting.step4_sub')}</p>
                 <div style={styles.anonRow}>
                   <div style={{ ...styles.anonCard, border: anonymous ? '2px solid #27AE60' : '2px solid #e5e7eb', background: anonymous ? '#f0fdf4' : '#fff' }} onClick={() => setAnonymous(true)}>
-                    <span style={{ fontSize: 22 }}>🕵️</span>
+                    <EyeOff size={22} color={anonymous ? '#27AE60' : '#9ca3af'} />
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{t('sighting.anonymous')}</div>
                       <div style={{ fontSize: 12, color: '#6b7280' }}>{t('sighting.anonymous_desc')}</div>
                     </div>
-                    {anonymous && <span style={{ marginLeft: 'auto', color: '#27AE60', fontWeight: 700 }}>✓</span>}
+                    {anonymous && <CheckCheck size={18} style={{ marginLeft: 'auto', color: '#27AE60' }} />}
                   </div>
                   <div style={{ ...styles.anonCard, border: !anonymous ? '2px solid #27AE60' : '2px solid #e5e7eb', background: !anonymous ? '#f0fdf4' : '#fff' }} onClick={() => setAnonymous(false)}>
-                    <span style={{ fontSize: 22 }}>👤</span>
+                    <UserCheck size={22} color={!anonymous ? '#27AE60' : '#9ca3af'} />
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{t('sighting.with_contact')}</div>
                       <div style={{ fontSize: 12, color: '#6b7280' }}>{t('sighting.with_contact_desc')}</div>
                     </div>
-                    {!anonymous && <span style={{ marginLeft: 'auto', color: '#27AE60', fontWeight: 700 }}>✓</span>}
+                    {!anonymous && <CheckCheck size={18} style={{ marginLeft: 'auto', color: '#27AE60' }} />}
                   </div>
                 </div>
                 {!anonymous && (
@@ -355,6 +398,131 @@ export default function SubmitSighting() {
           </div>
         </div>
       </div>
+=======
+          <div className={`anon-option ${!anonymous ? 'active' : ''}`} onClick={() => setAnonymous(false)}>
+            <span>👤</span>
+            <div>
+<<<<<<< Updated upstream
+              <b>{t('sighting.with_contact')}</b>
+=======
+              <b>With Contact Info</b>
+>>>>>>> Stashed changes
+              <p>Provide name &amp; phone for follow-up</p>
+            </div>
+          </div>
+        </div>
+
+<<<<<<< Updated upstream
+        {casesError && <p className="error">{casesError}</p>}
+        {msg && <p className="error">{msg}</p>}
+=======
+        {msg && (
+          <div style={{ background: 'var(--danger-bg)', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 16px', marginBottom: 16, color: '#991b1b', fontSize: 14 }}>
+            ⚠️ {msg}
+          </div>
+        )}
+>>>>>>> Stashed changes
+
+        <form onSubmit={submit} className="form-grid">
+          <div>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+              Select Missing Person <span style={{ color: 'var(--danger)' }}>*</span>
+            </label>
+            <select
+              value={form.missing_person_id}
+              onChange={e => setForm({ ...form, missing_person_id: e.target.value })}
+              required
+            >
+              <option value="">Select missing person</option>
+              {cases.map(c => (
+                <option key={c.id} value={c.id}>{c.name} — {c.last_seen_location}</option>
+              ))}
+            </select>
+          </div>
+
+          {!anonymous && (
+            <div className="form-row-2">
+              <input
+                value={form.reporter_name}
+                onChange={e => setForm({ ...form, reporter_name: e.target.value })}
+                placeholder="Your name (optional)"
+              />
+              <input
+                value={form.reporter_phone}
+                onChange={e => setForm({ ...form, reporter_phone: e.target.value })}
+                placeholder="Your phone number (optional)"
+              />
+            </div>
+          )}
+
+          <div style={{ position: 'relative' }}>
+            <input
+              value={form.location_text}
+              onChange={e => setForm({ ...form, location_text: e.target.value })}
+              placeholder="📍 Location name (e.g. Mirpur 10, Dhaka)"
+              style={{ paddingRight: geocoding ? 36 : undefined }}
+            />
+            {geocoding && (
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--primary)' }}>⏳</span>
+            )}
+          </div>
+
+          <textarea
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+            placeholder="Describe what you saw — clothing, direction, who they were with..."
+            required
+          />
+
+          <div>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Confidence Level</label>
+            <select
+              value={form.confidence_level}
+              onChange={e => setForm({ ...form, confidence_level: e.target.value })}
+            >
+              <option value="sure">✅ Sure — I'm confident it's them</option>
+              <option value="maybe">🤔 Maybe — Could be them</option>
+              <option value="not_sure">❓ Not sure — Just reporting</option>
+            </select>
+          </div>
+
+          <div className="file-upload-box">
+            <label>📷 Attach a photo (optional)</label>
+            <input type="file" accept="image/*" onChange={e => setImage(e.target.files[0])} />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+              📍 Pin the location on the map
+              <span style={{ color: 'var(--muted)', fontWeight: 400 }}> (click to auto-fill address)</span>
+            </label>
+            <MapView
+              center={[pos.lat, pos.lng]}
+              markers={[{ lat: pos.lat, lng: pos.lng, title: 'Sighting location' }]}
+              onPick={handleMapPick}
+            />
+            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0 0' }}>
+              📍 {pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}
+            </p>
+          </div>
+
+          {anonymous && (
+            <div className="anon-notice">
+              🕵️ You are submitting anonymously. Your identity will not be recorded.
+            </div>
+          )}
+
+<<<<<<< Updated upstream
+          <button className="btn full danger" disabled={submitting}>
+            {submitting ? t('sighting.submitting') : t('sighting.submit')}
+=======
+          <button className="btn full danger" disabled={submitting} style={{ padding: '14px', fontSize: 15, fontWeight: 800, borderRadius: 10 }}>
+            {submitting ? '⏳ Submitting...' : '📤 Submit Sighting'}
+>>>>>>> Stashed changes
+          </button>
+        </form>
+      </main>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
     </>
   );
 }

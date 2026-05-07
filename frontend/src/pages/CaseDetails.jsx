@@ -84,6 +84,7 @@ export default function CaseDetails() {
     setLoadingMatch(false);
   }
 
+<<<<<<< Updated upstream
   function handleTrackingToggle() {
     if (isTracking) {
       stopTracking();
@@ -130,6 +131,17 @@ export default function CaseDetails() {
   );
 
   if (!item) return <><Navbar /><main className="container">{t('case.loading')}</main></>;
+=======
+  if (!item) return (
+    <>
+      <Navbar />
+      <main className="container" style={{ paddingTop: 60, textAlign: 'center', color: 'var(--muted)' }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>⏳</div>
+        <p>Loading case details...</p>
+      </main>
+    </>
+  );
+>>>>>>> Stashed changes
 
   const image = item.images?.[0] || 'https://placehold.co/600x420?text=Missing+Person';
   const caseUrl = window.location.href;
@@ -154,20 +166,34 @@ export default function CaseDetails() {
   return (
     <>
       <Navbar />
-      <main className="container">
+      <main className="container" style={{ paddingBottom: 60 }}>
+
+        {/* Breadcrumb */}
+        <div style={{ margin: '20px 0 24px', fontSize: 13, color: 'var(--muted)' }}>
+          <Link to="/cases" style={{ color: 'var(--primary)', fontWeight: 600 }}>← Back to Cases</Link>
+        </div>
+
         <div className="details-grid">
-          {/* Left — Photo */}
+          {/* Left — Photo & QR */}
           <section>
-            <img className="big-photo" src={image} alt={item.name} />
-            <div className="thumbs">
-              {item.images?.map((src, i) => <img key={i} src={src} alt="" />)}
+            <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
+              <img className="big-photo" src={image} alt={item.name} style={{ borderRadius: 0 }} />
             </div>
+            {item.images?.length > 1 && (
+              <div className="thumbs">
+                {item.images.map((src, i) => <img key={i} src={src} alt={`Photo ${i + 1}`} />)}
+              </div>
+            )}
 
             {/* QR Code */}
             <div className="qr-box">
               <div className="qr-header">
                 <div>
+<<<<<<< Updated upstream
                   <div className="qr-title">{t('case.qr_title')}</div>
+=======
+                  <div className="qr-title">📱 Case QR Code</div>
+>>>>>>> Stashed changes
                   <div className="qr-id">ID: {item.id.slice(0, 8).toUpperCase()}</div>
                 </div>
                 <button className="btn outline small" onClick={() => setShowQR(!showQR)}>
@@ -183,7 +209,7 @@ export default function CaseDetails() {
                     const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `case-${item.id.slice(0,8)}.svg`;
+                    a.download = `case-${item.id.slice(0, 8)}.svg`;
                     a.click();
                   }}>{t('case.download_qr')}</button>
                 </div>
@@ -192,27 +218,81 @@ export default function CaseDetails() {
           </section>
 
           {/* Right — Details */}
-          <section className="panel">
-            <div className="row between">
-              <h1>{item.name}</h1>
+          <section className="panel" style={{ padding: 28 }}>
+            <div className="row between" style={{ marginBottom: 16 }}>
+              <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: 'var(--text)' }}>{item.name}</h1>
               <span className={`badge ${item.status}`}>{item.status}</span>
             </div>
-            <p><b>Age:</b> {item.age}</p>
-            <p><b>Gender:</b> {item.gender}</p>
-            <p><b>Height:</b> {item.height}</p>
-            <p><b>Last Seen:</b> {item.last_seen_location}</p>
-            <p><b>Clothing:</b> {item.clothing}</p>
-            <p><b>Medical:</b> {item.medical_info || 'None'}</p>
-            <p>{item.description}</p>
+
+            {/* Detail grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px', marginBottom: 20 }}>
+              {[
+                ['🎂 Age', item.age],
+                ['⚧ Gender', item.gender],
+                ['📏 Height', item.height],
+                ['⚖️ Weight', item.weight],
+                ['🎨 Skin Color', item.skin_color],
+              ].filter(([, v]) => v).map(([label, value]) => (
+                <div key={label} style={{ background: 'var(--bg)', borderRadius: 10, padding: '10px 14px' }}>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 3 }}>{label}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>📍 Last Seen</div>
+              <p style={{ margin: 0, fontSize: 15, color: 'var(--text)', fontWeight: 600 }}>{item.last_seen_location}</p>
+            </div>
+
+            {item.clothing && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>👕 Clothing</div>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--text)' }}>{item.clothing}</p>
+              </div>
+            )}
+
+            {item.identifying_marks && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>🔍 Identifying Marks</div>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--text)' }}>{item.identifying_marks}</p>
+              </div>
+            )}
+
+            {item.medical_info && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>🏥 Medical Info</div>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--text)' }}>{item.medical_info}</p>
+              </div>
+            )}
+
+            {item.description && (
+              <div style={{ marginBottom: 20, background: 'var(--bg)', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 6 }}>📝 Description</div>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--text)', lineHeight: 1.6 }}>{item.description}</p>
+              </div>
+            )}
+
             <div className="row gap" style={{ flexWrap: 'wrap' }}>
+<<<<<<< Updated upstream
               <Link className="btn danger" to={`/sighting/${item.id}`}>{t('case.saw_person')}</Link>
               <button className="btn outline" onClick={() => navigator.share?.({ title: item.name, url: caseUrl })}>{t('case.share')}</button>
+<<<<<<< HEAD
               {/* AI match only for admin/police */}
               {user && (user.role === 'admin' || user.role === 'police') && (
                 <button className="btn outline" onClick={runAIMatch} disabled={loadingMatch}>
                   {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
                 </button>
               )}
+=======
+=======
+              <Link className="btn danger" to={`/sighting/${item.id}`}>👁️ I Saw This Person</Link>
+              <button className="btn outline" onClick={() => navigator.share?.({ title: item.name, url: caseUrl })}>📤 Share Case</button>
+>>>>>>> Stashed changes
+              <button className="btn outline" onClick={runAIMatch} disabled={loadingMatch}>
+                {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
+              </button>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
             </div>
           </section>
         </div>
@@ -220,8 +300,13 @@ export default function CaseDetails() {
         {/* AI Match Results — only visible to admin/police */}
         {matches !== null && user && (user.role === 'admin' || user.role === 'police') && (
           <div className="ai-match-box">
+<<<<<<< HEAD
             <h2>AI Matching Results</h2>
             <p className="muted">Sightings ranked by keyword similarity with case details.</p>
+=======
+            <h2 style={{ margin: '0 0 6px', fontSize: 20, color: 'var(--text)' }}>🤖 AI Matching Results</h2>
+            <p className="muted" style={{ margin: '0 0 16px' }}>Sightings ranked by keyword similarity with case details.</p>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
             {matches.length === 0 ? (
               <p className="muted">No sightings found for this case yet.</p>
             ) : (
@@ -230,17 +315,27 @@ export default function CaseDetails() {
                   <div key={m.id} className="ai-match-item">
                     <div className="ai-match-header">
                       <div className="ai-score-bar">
-                        <div className="ai-score-fill" style={{ width: `${m.ai_match_score}%`, background: m.ai_match_score > 50 ? '#16a34a' : m.ai_match_score > 20 ? '#f59e0b' : '#e11d2e' }} />
+                        <div className="ai-score-fill" style={{
+                          width: `${m.ai_match_score}%`,
+                          background: m.ai_match_score > 50 ? 'var(--success)' : m.ai_match_score > 20 ? 'var(--warning)' : 'var(--danger)'
+                        }} />
                       </div>
                       <span className="ai-score-num">{m.ai_match_score}% match</span>
                       <span className={`badge ${m.status}`}>{m.status}</span>
                     </div>
                     <p className="ai-match-desc">{m.description}</p>
                     <div className="ai-match-meta">
+<<<<<<< HEAD
                       <span>{m.location_text || 'Unknown location'}</span>
                       <span>{new Date(m.created_at).toLocaleString()}</span>
                       {m.ai_matched_keywords.length > 0 && (
                         <span>Keywords: <b>{m.ai_matched_keywords.join(', ')}</b></span>
+=======
+                      <span>📍 {m.location_text || 'Unknown location'}</span>
+                      <span>🕐 {new Date(m.created_at).toLocaleString()}</span>
+                      {m.ai_matched_keywords?.length > 0 && (
+                        <span>🔑 Keywords: <b>{m.ai_matched_keywords.join(', ')}</b></span>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
                       )}
                     </div>
                   </div>
@@ -250,6 +345,7 @@ export default function CaseDetails() {
           </div>
         )}
 
+<<<<<<< Updated upstream
         <h2>Last Seen Location & Verified Sightings</h2>
         {isOwnerOrGuardian && (
           <div className="live-tracking-section">
@@ -283,6 +379,35 @@ export default function CaseDetails() {
               {entry.notes && <p style={{ margin: '6px 0 0', fontSize: 14 }}>{entry.notes}</p>}
             </div>
           ))}
+=======
+        {/* Map */}
+        <div className="panel" style={{ marginTop: 24, padding: 24 }}>
+          <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--text)' }}>
+            📍 Last Seen Location &amp; Verified Sightings
+          </h2>
+          <MapView center={[item.last_seen_lat, item.last_seen_lng]} markers={markers} />
+        </div>
+
+        {/* Timeline */}
+        <div className="panel" style={{ marginTop: 24, padding: 24 }}>
+          <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--text)' }}>
+            🕐 Timeline / Sightings
+          </h2>
+          <div className="timeline">
+            {(item.sightings || []).map(s => (
+              <div className="timeline-item" key={s.id}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span className={`badge ${s.status}`}>{s.status}</span>
+                  <small style={{ color: 'var(--muted)' }}>{new Date(s.created_at).toLocaleString()}</small>
+                </div>
+                <p style={{ margin: 0, fontSize: 14, color: 'var(--text)' }}>{s.description}</p>
+              </div>
+            ))}
+            {(item.sightings || []).length === 0 && (
+              <p className="muted" style={{ textAlign: 'center', padding: '24px 0' }}>No sightings reported yet.</p>
+            )}
+          </div>
+>>>>>>> Stashed changes
         </div>
 
         {/* Task 18.2: Add Timeline Entry form — visible to admin/police only */}

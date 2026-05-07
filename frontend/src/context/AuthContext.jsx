@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+=======
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+>>>>>>> Stashed changes
 import { api } from '../api/client';
 
 const AuthContext = createContext(null);
@@ -32,8 +36,10 @@ function isTokenExpired(token) {
 }
 
 export function AuthProvider({ children }) {
+  // 3.1.1 — reads localStorage on mount
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
 
+<<<<<<< Updated upstream
   // On mount, validate the stored JWT. If it is expired or missing, clear the
   // session and redirect to /login so the user is not stuck in a broken state.
   // AuthProvider sits outside BrowserRouter, so useNavigate is unavailable here;
@@ -54,6 +60,23 @@ export function AuthProvider({ children }) {
 
   // Fix #18: wrap functions in useCallback so useMemo dependency array is correct
   const login = useCallback(async (email, password) => {
+=======
+  // 3.1.2 — validate token on app load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    api.get('/auth/me').then(r => {
+      setUser(r.data.user);
+      localStorage.setItem('user', JSON.stringify(r.data.user));
+    }).catch(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+    });
+  }, []);
+
+  async function login(email, password) {
+>>>>>>> Stashed changes
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));

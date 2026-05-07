@@ -300,10 +300,18 @@ export default function ReportCase() {
                     {geocoding && (
                       <span style={{
                         position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+<<<<<<< Updated upstream
                         fontSize: 14, color: '#27AE60'
+<<<<<<< HEAD
                       }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </span>
+=======
+=======
+                        fontSize: 14, color: 'var(--primary)'
+>>>>>>> Stashed changes
+                      }}>⏳</span>
+>>>>>>> d090232e24ad7bf8a46350024742f09d0479363e
                     )}
                   </div>
                 </div>
@@ -407,7 +415,11 @@ export default function ReportCase() {
       <style>{`
         .rc-page {
           min-height: 100vh;
+<<<<<<< Updated upstream
           background: linear-gradient(160deg, #eafaf1 0%, #f4fdf7 40%, #f9fafb 100%);
+=======
+          background: var(--bg);
+>>>>>>> Stashed changes
           padding: 32px 16px 64px;
         }
         .rc-container {
@@ -421,11 +433,11 @@ export default function ReportCase() {
         .rc-header h1 {
           font-size: 26px;
           font-weight: 800;
-          color: #1e3a5f;
+          color: var(--navy);
           margin: 0 0 6px;
         }
         .rc-header p {
-          color: #64748b;
+          color: var(--muted);
           font-size: 14px;
           margin: 0;
         }
@@ -458,12 +470,12 @@ export default function ReportCase() {
           margin: 0 0 12px;
         }
         .rc-card {
-          background: #fff;
+          background: var(--surface);
           border-radius: 14px;
-          border: 1px solid #e2e8f0;
+          border: 1px solid var(--border);
           padding: 28px 28px 20px;
           margin-bottom: 20px;
-          box-shadow: 0 2px 12px rgba(0,0,0,.05);
+          box-shadow: var(--shadow-sm);
         }
         .rc-section-title {
           display: flex;
@@ -474,17 +486,21 @@ export default function ReportCase() {
         .rc-section-title span {
           font-size: 16px;
           font-weight: 800;
-          color: #1e3a5f;
+          color: var(--navy);
           white-space: nowrap;
         }
         .rc-section-line {
           flex: 1;
           height: 2px;
+<<<<<<< Updated upstream
           background: linear-gradient(90deg, #27AE60 0%, transparent 100%);
+=======
+          background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+>>>>>>> Stashed changes
           border-radius: 2px;
         }
         .rc-section-sub {
-          color: #64748b;
+          color: var(--muted);
           font-size: 13px;
           margin: 0 0 18px;
         }
@@ -498,7 +514,7 @@ export default function ReportCase() {
           display: block;
           font-size: 13px;
           font-weight: 600;
-          color: #374151;
+          color: var(--text);
           margin-bottom: 6px;
         }
         .rc-field input,
@@ -506,45 +522,54 @@ export default function ReportCase() {
         .rc-field textarea {
           width: 100%;
           padding: 9px 12px;
-          border: 1px solid #d1d5db;
+          border: 1.5px solid var(--border);
           border-radius: 8px;
           font-size: 14px;
-          color: #111827;
-          background: #fff;
+          color: var(--text);
+          background: var(--surface);
           box-sizing: border-box;
-          transition: border-color .15s;
+          transition: border-color .15s, box-shadow .15s;
           outline: none;
         }
         .rc-field input:focus,
         .rc-field select:focus,
         .rc-field textarea:focus {
+<<<<<<< Updated upstream
           border-color: #27AE60;
           box-shadow: 0 0 0 3px rgba(39,174,96,.12);
+=======
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(26,86,219,.1);
+>>>>>>> Stashed changes
         }
         .rc-field textarea { resize: vertical; }
-        .req { color: #ef4444; }
-        .rc-file-hint { color: #94a3b8; font-weight: 400; font-size: 12px; }
+        .req { color: var(--danger); }
+        .rc-file-hint { color: var(--muted); font-weight: 400; font-size: 12px; }
         .rc-map-label {
           font-size: 13px;
           font-weight: 600;
-          color: #374151;
+          color: var(--text);
           margin: 16px 0 8px;
         }
-        .rc-map-hint { color: #94a3b8; font-weight: 400; }
-        .rc-coords { font-size: 12px; color: #64748b; margin: 6px 0 0; }
+        .rc-map-hint { color: var(--muted); font-weight: 400; }
+        .rc-coords { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
         .rc-dropzone {
           display: block;
-          border: 2px dashed #cbd5e1;
+          border: 2px dashed var(--border);
           border-radius: 10px;
           cursor: pointer;
           transition: border-color .15s;
           min-height: 140px;
           overflow: hidden;
         }
+<<<<<<< Updated upstream
         .rc-dropzone:hover { border-color: #27AE60; }
         .rc-dropzone-error { border-color: #ef4444; background: #fef2f2; }
         .rc-dropzone-error:hover { border-color: #dc2626; }
         .rc-drop-required { color: #ef4444; font-size: 12px; font-weight: 600; }
+=======
+        .rc-dropzone:hover { border-color: var(--primary); }
+>>>>>>> Stashed changes
         .rc-dropzone-inner {
           display: flex;
           flex-direction: column;
@@ -552,14 +577,19 @@ export default function ReportCase() {
           justify-content: center;
           gap: 6px;
           padding: 28px 16px;
-          color: #64748b;
+          color: var(--muted);
           font-size: 13px;
           text-align: center;
           min-height: 140px;
         }
         .rc-drop-icon { font-size: 28px; }
+<<<<<<< Updated upstream
         .rc-drop-hint { font-size: 11px; color: #94a3b8; }
         .rc-browse { color: #27AE60; text-decoration: underline; }
+=======
+        .rc-drop-hint { font-size: 11px; color: var(--muted); }
+        .rc-browse { color: var(--primary); text-decoration: underline; }
+>>>>>>> Stashed changes
         .rc-photo-preview {
           padding: 12px;
           display: flex;
@@ -582,7 +612,7 @@ export default function ReportCase() {
           justify-content: space-between;
           align-items: center;
           font-size: 12px;
-          color: #374151;
+          color: var(--text);
         }
         .rc-filename {
           overflow: hidden;
@@ -590,22 +620,26 @@ export default function ReportCase() {
           white-space: nowrap;
           max-width: 140px;
         }
-        .rc-ready { color: #16a34a; font-weight: 700; }
+        .rc-ready { color: var(--success); font-weight: 700; }
         .rc-remove-btn {
           background: none;
-          border: 1px solid #ef4444;
-          color: #ef4444;
+          border: 1px solid var(--danger);
+          color: var(--danger);
           border-radius: 6px;
           padding: 4px 12px;
           font-size: 12px;
           cursor: pointer;
           align-self: flex-start;
         }
-        .rc-remove-btn:hover { background: #fef2f2; }
+        .rc-remove-btn:hover { background: var(--danger-bg); }
         .rc-btn-submit {
           width: 100%;
           padding: 14px;
+<<<<<<< Updated upstream
           background: #27AE60;
+=======
+          background: var(--accent);
+>>>>>>> Stashed changes
           color: #fff;
           border: none;
           border-radius: 10px;
@@ -613,18 +647,22 @@ export default function ReportCase() {
           font-weight: 700;
           cursor: pointer;
           margin-bottom: 8px;
-          transition: background .15s;
+          transition: background .15s, transform .1s;
         }
+<<<<<<< Updated upstream
         .rc-btn-submit:hover:not(:disabled) { background: #1e8449; }
+=======
+        .rc-btn-submit:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-1px); }
+>>>>>>> Stashed changes
         .rc-btn-submit:disabled { opacity: .6; cursor: not-allowed; }
         .rc-required-note {
           text-align: center;
           font-size: 12px;
-          color: #94a3b8;
+          color: var(--muted);
           margin: 0;
         }
         .rc-error {
-          background: #fef2f2;
+          background: var(--danger-bg);
           border: 1px solid #fca5a5;
           border-radius: 10px;
           padding: 12px 16px;

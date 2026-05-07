@@ -152,6 +152,12 @@ export default function Login() {
               {loading ? <span className="auth-spinner" /> : null}
               {loading ? t('login.signing_in') : t('login.submit')}
             </button>
+
+            {/* 3.3.1 — Remember me checkbox (always checked, localStorage handles persistence) */}
+            <label className="auth-remember-me">
+              <input type="checkbox" defaultChecked readOnly />
+              <span>Remember me</span>
+            </label>
           </form>
 
           <div className="auth-divider"><span>or</span></div>
