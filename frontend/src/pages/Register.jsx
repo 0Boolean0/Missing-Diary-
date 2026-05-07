@@ -5,7 +5,8 @@ import { useLang } from '../context/LangContext';
 import logoGif from '../assets/output-onlinegiftools.gif';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'local' });
+  // 3.2.2 — default role to guardian
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'guardian' });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,9 +30,10 @@ export default function Register() {
     }
   }
 
+  // 3.2.1 — guardian first, with clear descriptions
   const roles = [
-    { value: 'local', label: '🏘️ Local Member', desc: 'Help find missing persons nearby' },
-    { value: 'guardian', label: '👨‍👩‍👧 Guardian / Family', desc: 'Report a missing family member' },
+    { value: 'guardian', label: '👨‍👩‍👧 Guardian / Family', desc: 'Report a missing family member and track their case' },
+    { value: 'local', label: '🏘️ Local Member', desc: 'Help find missing persons in your community' },
   ];
 
   return (

@@ -1,6 +1,16 @@
 import { Link } from 'react-router-dom';
 
+const STATUS_ICONS = {
+  pending: '⏳',
+  verified: '✅',
+  active: '🔴',
+  found: '🏠',
+  closed: '📁',
+  rejected: '❌',
+};
+
 export default function CaseCard({ item }) {
+<<<<<<< Updated upstream
   const img = item.images?.[0] || 'https://placehold.co/300x240?text=No+Photo';
   const statusLabel = item.status === 'active' ? 'Active' : item.status === 'found' ? 'Found' : item.status;
 
@@ -29,6 +39,29 @@ export default function CaseCard({ item }) {
           >
             I Saw Them
           </Link>
+=======
+  const img = item.images?.[0] || 'https://placehold.co/400x300?text=Missing+Person';
+  const icon = STATUS_ICONS[item.status] || '📋';
+
+  return (
+    <div className="case-card">
+      <div className="case-card-img-wrap">
+        <img src={img} alt={item.name} loading="lazy" />
+        <span className={`badge ${item.status} case-card-badge`}>
+          {icon} {item.status}
+        </span>
+      </div>
+      <div className="case-body">
+        <h3>{item.name}</h3>
+        <p className="case-meta">
+          <span>🎂 Age: {item.age || 'Unknown'}</span>
+          {item.gender && <span> · {item.gender}</span>}
+        </p>
+        <p className="case-location">📍 {item.last_seen_location || 'Location unknown'}</p>
+        <div className="case-card-actions">
+          <Link className="btn small" to={`/cases/${item.id}`}>View Details</Link>
+          <Link className="btn small outline" to={`/sighting/${item.id}`}>I Saw Them</Link>
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>

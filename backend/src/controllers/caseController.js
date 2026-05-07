@@ -14,7 +14,9 @@ const caseSchema = z.object({
   last_seen_location: z.string().min(2),
   last_seen_lat: z.coerce.number(),
   last_seen_lng: z.coerce.number(),
-  last_seen_time: z.string().optional()
+  last_seen_time: z.string().optional(),
+  // 6.4.3 — optional photo description from AI
+  photo_description: z.string().optional()
 });
 
 const PUBLIC_STATUSES = ['active', 'verified', 'found', 'closed'];
@@ -24,6 +26,7 @@ export async function listCases(req, res, next) {
     const status = req.query.status;
     const user = req.user;
 
+<<<<<<< Updated upstream
     // Admin/police: see all cases, optionally filtered by status
     if (user && (user.role === 'admin' || user.role === 'police')) {
       let sql =
@@ -33,15 +36,32 @@ export async function listCases(req, res, next) {
       if (status) {
         params.push(status);
         sql += ' WHERE mp.status=$1';
+=======
+    // 4.1.1 — unauthenticated users: only show verified/active/found cases
+    if (!user) {
+      let sql =
+        'SELECT mp.*, COALESCE(json_agg(pi.image_url) FILTER (WHERE pi.image_url IS NOT NULL), \'[]\') AS images ' +
+        'FROM missing_persons mp LEFT JOIN person_images pi ON pi.missing_person_id = mp.id ' +
+        'WHERE mp.status IN (\'verified\',\'active\',\'found\')';
+      const params = [];
+      if (status && ['verified','active','found'].includes(status)) {
+        params.push(status);
+        sql += ' AND mp.status=$1';
+>>>>>>> Stashed changes
       }
       sql += ' GROUP BY mp.id ORDER BY mp.created_at DESC';
       const result = await query(sql, params);
       return res.json(result.rows);
     }
 
+<<<<<<< Updated upstream
     // Authenticated non-admin/police: own cases (all statuses) + public cases from others
     if (user) {
       const publicPlaceholders = PUBLIC_STATUSES.map((_, i) => `$${i + 2}`).join(',');
+=======
+    // Non-admin/police: only see their own submitted cases
+    if (user.role !== 'admin' && user.role !== 'police') {
+>>>>>>> Stashed changes
       const result = await query(
         'SELECT mp.*, COALESCE(json_agg(pi.image_url) FILTER (WHERE pi.image_url IS NOT NULL), \'[]\') AS images ' +
         'FROM missing_persons mp LEFT JOIN person_images pi ON pi.missing_person_id = mp.id ' +
@@ -129,10 +149,14 @@ export async function createCase(req, res, next) {
     );
     const created = result.rows[0];
     const files = req.files || [];
+    let firstImage = true;
     for (const f of files) {
       const uploaded = await uploadBufferToCloudinary(f.buffer, 'missing-diary/missing-persons');
-      await query('INSERT INTO person_images (missing_person_id,image_url,public_id) VALUES ($1,$2,$3)',
-        [created.id, uploaded.secure_url, uploaded.public_id]);
+      // 6.4.2 — store photo_description on the first image
+      const photoDesc = firstImage ? (data.photo_description || null) : null;
+      await query('INSERT INTO person_images (missing_person_id,image_url,public_id,photo_description) VALUES ($1,$2,$3,$4)',
+        [created.id, uploaded.secure_url, uploaded.public_id, photoDesc]);
+      firstImage = false;
     }
     res.status(201).json(created);
   } catch (e) { next(e); }

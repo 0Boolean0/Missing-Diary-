@@ -9,7 +9,11 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useLang();
   const [reportOpen, setReportOpen] = useState(false);
+<<<<<<< Updated upstream
   const [queueCount, setQueueCount] = useState(getOfflineQueue().length);
+=======
+  const [mobileOpen, setMobileOpen] = useState(false);
+>>>>>>> Stashed changes
   const dropRef = useRef(null);
   const nav = useNavigate();
   const location = useLocation();
@@ -24,6 +28,7 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+<<<<<<< Updated upstream
   // 14.5: Keep queue count in sync
   useEffect(() => {
     function handleQueueUpdate() {
@@ -36,11 +41,25 @@ export default function Navbar() {
       window.removeEventListener('offlineQueueUpdated', handleQueueUpdate);
       window.removeEventListener('storage', handleQueueUpdate);
     };
+=======
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+>>>>>>> Stashed changes
   }, []);
 
   function handleReportClick(path) {
     setReportOpen(false);
+<<<<<<< Updated upstream
     nav(user ? path : `/login?redirect=${encodeURIComponent(path)}`);
+=======
+    setMobileOpen(false);
+    if (user) {
+      nav(path);
+    } else {
+      nav(`/login?redirect=${encodeURIComponent(path)}`);
+    }
+>>>>>>> Stashed changes
   }
 
   const isActive = (path) => location.pathname === path;
@@ -49,15 +68,58 @@ export default function Navbar() {
     <header className="navbar">
       {/* Brand */}
       <Link to="/" className="brand">
+<<<<<<< Updated upstream
         <div className="brand-logo">
           <img src={logoGif} alt="Missing Diary" className="brand-gif" />
           <div className="brand-text">
             <span className="brand-main">Missing Diary</span>
             <span className="brand-sub">Alert System</span>
           </div>
+=======
+        <img src={logoGif} alt="Missing Diary" className="brand-gif" />
+      </Link>
+
+      {/* Desktop nav */}
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/cases">Missing Cases</Link>
+        <Link to="/sightings">Sightings</Link>
+
+        {/* Report Dropdown */}
+        <div className="nav-dropdown" ref={dropRef}>
+          <button className="btn small danger" onClick={() => setReportOpen(o => !o)}>
+            Report ▾
+          </button>
+          {reportOpen && (
+            <div className="nav-dropdown-menu">
+              <div className="nav-dropdown-item" onClick={() => handleReportClick('/report')}>
+                <span>🚨</span>
+                <div>
+                  <b>Report Missing Person</b>
+                  <p>Submit a new missing person case</p>
+                </div>
+                {!user && <span className="nav-lock">🔒</span>}
+              </div>
+              <div className="nav-dropdown-item" onClick={() => handleReportClick('/sighting')}>
+                <span>👁️</span>
+                <div>
+                  <b>Submit a Sighting</b>
+                  <p>I saw someone who may be missing</p>
+                </div>
+                {!user && <span className="nav-lock">🔒</span>}
+              </div>
+              {!user && (
+                <div className="nav-dropdown-footer">
+                  <Link to="/login" onClick={() => setReportOpen(false)}>Login to submit a report →</Link>
+                </div>
+              )}
+            </div>
+          )}
+>>>>>>> Stashed changes
         </div>
       </Link>
 
+<<<<<<< Updated upstream
       <nav>
         <Link to="/" style={isActive('/') ? { color: 'var(--text)' } : {}}>{t('nav.home')}</Link>
         {!isAdmin && (
@@ -154,7 +216,46 @@ export default function Navbar() {
             📋 {queueCount}
           </span>
         )}
+=======
+        {/* Language toggle placeholder — will be wired in Phase 5 */}
+        <button className="lang-toggle" type="button" title="Switch language (coming soon)">
+          EN | বাংলা
+        </button>
+
+        {user
+          ? <><Link to="/dashboard">Dashboard</Link><button className="ghost" onClick={logout}>Logout</button></>
+          : <Link className="btn small" to="/login">Login</Link>
+        }
+>>>>>>> Stashed changes
       </nav>
+
+      {/* Mobile hamburger */}
+      <button
+        className="navbar-hamburger"
+        aria-label="Toggle menu"
+        onClick={() => setMobileOpen(o => !o)}
+      >
+        {mobileOpen ? '✕' : '☰'}
+      </button>
+
+      {/* Mobile menu */}
+      <div className={`navbar-mobile-menu${mobileOpen ? ' open' : ''}`}>
+        <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
+        <Link to="/cases" onClick={() => setMobileOpen(false)}>Missing Cases</Link>
+        <Link to="/sightings" onClick={() => setMobileOpen(false)}>Sightings</Link>
+        <button onClick={() => handleReportClick('/report')}>🚨 Report Missing Person</button>
+        <button onClick={() => handleReportClick('/sighting')}>👁️ Submit a Sighting</button>
+        <button className="lang-toggle" type="button" style={{ textAlign: 'left', background: 'none', border: 'none', color: 'rgba(255,255,255,.85)', padding: '10px 0', fontSize: 15, fontWeight: 600, cursor: 'default' }}>
+          EN | বাংলা
+        </button>
+        {user
+          ? <>
+              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+              <button onClick={() => { logout(); setMobileOpen(false); }}>Logout</button>
+            </>
+          : <Link to="/login" onClick={() => setMobileOpen(false)}>Login</Link>
+        }
+      </div>
     </header>
   );
 }

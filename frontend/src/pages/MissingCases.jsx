@@ -6,7 +6,16 @@ import MapView from '../components/MapView';
 import { api } from '../api/client';
 import { useLang } from '../context/LangContext';
 
-const STATUSES = ['all', 'active', 'verified', 'pending', 'found', 'closed'];
+// 4.2 — 'pending' removed; public users only see verified/active/found/closed
+const STATUSES = ['all', 'active', 'verified', 'found', 'closed'];
+
+const STATUS_LABELS = {
+  all: 'All Cases',
+  active: '🔴 Active',
+  verified: '✅ Verified',
+  found: '🏠 Found',
+  closed: '📁 Closed',
+};
 
 export default function MissingCases() {
   const [cases, setCases] = useState([]);
@@ -34,15 +43,22 @@ export default function MissingCases() {
   }));
 
   return (
-    <>
+    <div className="cases-page-bg">
       <Navbar />
       <main className="container">
         {/* Header */}
         <div className="cases-header">
+<<<<<<< Updated upstream
           <div>
             <h1>{t('cases.title')}</h1>
             <p className="muted">Search through {cases.length} active cases. Submit sightings to help reunite families.</p>
           </div>
+=======
+          <h1>Missing Cases</h1>
+          <p className="muted">
+            Search through <strong>{cases.length}</strong> cases. Submit sightings to help reunite families.
+          </p>
+>>>>>>> Stashed changes
         </div>
 
         {/* Filters */}
@@ -51,7 +67,12 @@ export default function MissingCases() {
             className="cases-search"
             value={search}
             onChange={e => setSearch(e.target.value)}
+<<<<<<< Updated upstream
             placeholder={t('cases.search_placeholder')}
+=======
+            placeholder="🔍 Search by name, age, location..."
+            aria-label="Search cases"
+>>>>>>> Stashed changes
           />
           <div className="cases-status-tabs">
             {STATUSES.map(s => (
@@ -60,7 +81,7 @@ export default function MissingCases() {
                 className={`status-tab ${status === s ? 'active' : ''}`}
                 onClick={() => setStatus(s)}
               >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {STATUS_LABELS[s]}
               </button>
             ))}
           </div>
@@ -70,12 +91,23 @@ export default function MissingCases() {
           </div>
         </div>
 
-        <div className="cases-count">Showing {filtered.length} of {cases.length} cases</div>
+        <div className="cases-count">
+          Showing <strong>{filtered.length}</strong> of <strong>{cases.length}</strong> cases
+        </div>
 
         {/* Grid View */}
         {view === 'grid' && (
           filtered.length === 0
+<<<<<<< Updated upstream
             ? <div className="db-empty"><div className="db-empty-icon">📭</div><p>{t('cases.no_cases')}</p></div>
+=======
+            ? (
+              <div className="db-empty">
+                <div className="db-empty-icon">📭</div>
+                <p>No cases found matching your search.</p>
+              </div>
+            )
+>>>>>>> Stashed changes
             : <div className="grid cards">{filtered.map(c => <CaseCard item={c} key={c.id} />)}</div>
         )}
 
@@ -84,6 +116,6 @@ export default function MissingCases() {
           <MapView markers={markers} height={520} />
         )}
       </main>
-    </>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 export const translations = {
   en: {
     // Navbar
@@ -224,3 +225,6 @@ export const translations = {
     'dash.cases_map': 'নিখোঁজ ব্যক্তিদের মানচিত্র',
   }
 };
+=======
+// translations placeholder
+>>>>>>> Stashed changes
