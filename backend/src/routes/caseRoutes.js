@@ -35,8 +35,8 @@ router.post('/:id/timeline', requireAuth, requireRole('admin', 'police'), addTim
 router.post('/:id/location', requireAuth, requireRole('admin', 'police'), recordLocation);
 router.get('/:id/trail', requireAuth, requireRole('admin', 'police'), getTrail);
 
-// Found-person photo routes — must be before /:id catch-all
-router.post('/:id/found-photo', requireAuth, requireRole('admin', 'police'), foundPhotoUpload.single('image'), uploadFoundPhoto);
+// Found-person photo routes — police only (admin cannot mark as found)
+router.post('/:id/found-photo', requireAuth, requireRole('police'), foundPhotoUpload.single('image'), uploadFoundPhoto);
 router.get('/:id/found-photos', optionalAuth, getFoundPhotos);
 
 // GET /cases/:id — publicly accessible (witnesses need to see case details)

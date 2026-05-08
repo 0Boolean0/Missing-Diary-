@@ -191,10 +191,8 @@ export default function Dashboard() {
       if (edit.review === 'approve') {
         await api.post(`/cases/${c.id}/approve`);
         newStatus = 'active';
-        if (edit.found === 'found') {
-          await api.patch(`/cases/${c.id}/status`, { status: 'found' });
-          newStatus = 'found';
-        } else if (edit.found === 'closed') {
+        // Admin cannot set found — only close
+        if (edit.found === 'closed') {
           await api.patch(`/cases/${c.id}/status`, { status: 'closed', notes: edit.closeReason });
           newStatus = 'closed';
         }
@@ -202,7 +200,8 @@ export default function Dashboard() {
         await api.post(`/cases/${c.id}/reject`);
         newStatus = 'rejected';
       } else {
-        const targetStatus = edit.found === 'found' ? 'found' : edit.found === 'closed' ? 'closed' : c.status;
+        // Admin can only close, not mark as found
+        const targetStatus = edit.found === 'closed' ? 'closed' : c.status;
         if (targetStatus !== c.status) {
           await api.patch(`/cases/${c.id}/status`, {
             status: targetStatus,
@@ -287,6 +286,14 @@ export default function Dashboard() {
   const pendingCount = cases.filter(c => c.status === 'pending').length;
   const foundCases = cases.filter(c => c.status === 'found').length;
   const isAdminOrPolice = ['admin', 'police'].includes(user.role);
+
+  // Admin: separate active/pending cases from found cases (found goes to history)
+  const activeCasesList = user.role === 'admin'
+    ? cases.filter(c => c.status !== 'found')
+    : cases;
+  const foundCasesList = user.role === 'admin'
+    ? cases.filter(c => c.status === 'found')
+    : [];
 
   return (
     <>
@@ -378,122 +385,259 @@ export default function Dashboard() {
           {activeTab === 'cases' && (
             <>
               <h2>{t('dash.cases')}</h2>
-              {cases.length === 0 ? (
+              {activeCasesList.length === 0 && foundCasesList.length === 0 ? (
                 <div className="db-empty">
                   <p>{t('dash.no_cases')}</p>
                   <Link className="btn" to="/report">{t('dash.report_btn')}</Link>
                 </div>
               ) : (
-                <div className="dc-card-grid">
-                  {cases.map(c => (
-                    <div key={c.id} className="dc-case-card-wrap">
-                      <div className="dc-case-card">
-                        <div className="dc-card-photo">
-                          <img src={c.images?.[0] || 'https://placehold.co/80x80?text=?'} alt={c.name} />
-                        </div>
-                        <div className="dc-card-header">
-                          <Link to={`/cases/${c.id}`} className="dc-card-name">{c.name}</Link>
-                          <span className={`badge ${c.status}`}>{c.status}</span>
-                          <div className="dc-card-meta">
-                            {c.age && <span>Age: <b>{c.age}</b></span>}
-                            {c.gender && <span>{c.gender}</span>}
-                            {c.height && <span>{c.height}</span>}
-                          </div>
-                          {c.description && (
-                            <p className="dc-card-desc">{c.description.slice(0, 80)}{c.description.length > 80 ? '...' : ''}</p>
-                          )}
-                        </div>
-                        <div className="dc-card-info">
-                          <div className="dc-card-row">
-                            <span className="dc-card-label">Last Seen</span>
-                            <span className="dc-card-value">{c.last_seen_location || '--'}</span>
-                          </div>
-                          {c.last_seen_time && (
-                            <div className="dc-card-row">
-                              <span className="dc-card-label">When</span>
-                              <span className="dc-card-value">{formatDate(c.last_seen_time)}</span>
+                <>
+                  {/* Active / Pending / Other cases */}
+                  {activeCasesList.length > 0 && (
+                    <div className="dc-card-grid">
+                      {activeCasesList.map(c => (
+                        <div key={c.id} className="dc-case-card-wrap">
+                          <div className="dc-case-card">
+                            <div className="dc-card-photo">
+                              <img src={c.images?.[0] || 'https://placehold.co/80x80?text=?'} alt={c.name} />
                             </div>
-                          )}
-                          <div className="dc-card-row">
-                            <span className="dc-card-label">Reporter</span>
-                            <span className="dc-card-value">
-                              {c.reporter_name || '--'}
-                              {c.reporter_phone && <span className="muted"> · {c.reporter_phone}</span>}
-                            </span>
-                          </div>
-                          {c.ai_verification_score != null && (
-                            <div className="dc-card-row">
-                              <span className="dc-card-label">AI Score</span>
-                              <span className="dc-card-value">
-                                <span className={`ai-score-badge ${c.ai_verification_score >= 80 ? 'ai-score-high' : c.ai_verification_score >= 50 ? 'ai-score-mid' : 'ai-score-low'}`}>
-                                  {c.ai_verification_score}/100
+                            <div className="dc-card-header">
+                              <Link to={`/cases/${c.id}`} className="dc-card-name">{c.name}</Link>
+                              <span className={`badge ${c.status}`}>{c.status}</span>
+                              <div className="dc-card-meta">
+                                {c.age && <span>Age: <b>{c.age}</b></span>}
+                                {c.gender && <span>{c.gender}</span>}
+                                {c.height && <span>{c.height}</span>}
+                              </div>
+                              {c.description && (
+                                <p className="dc-card-desc">{c.description.slice(0, 80)}{c.description.length > 80 ? '...' : ''}</p>
+                              )}
+                            </div>
+                            <div className="dc-card-info">
+                              <div className="dc-card-row">
+                                <span className="dc-card-label">Last Seen</span>
+                                <span className="dc-card-value">{c.last_seen_location || '--'}</span>
+                              </div>
+                              {c.last_seen_time && (
+                                <div className="dc-card-row">
+                                  <span className="dc-card-label">When</span>
+                                  <span className="dc-card-value">{formatDate(c.last_seen_time)}</span>
+                                </div>
+                              )}
+                              <div className="dc-card-row">
+                                <span className="dc-card-label">Reporter</span>
+                                <span className="dc-card-value">
+                                  {c.reporter_name || '--'}
+                                  {c.reporter_phone && <span className="muted"> · {c.reporter_phone}</span>}
                                 </span>
-                              </span>
+                              </div>
+                              {c.ai_verification_score != null && (
+                                <div className="dc-card-row">
+                                  <span className="dc-card-label">AI Score</span>
+                                  <span className="dc-card-value">
+                                    <span className={`ai-score-badge ${c.ai_verification_score >= 80 ? 'ai-score-high' : c.ai_verification_score >= 50 ? 'ai-score-mid' : 'ai-score-low'}`}>
+                                      {c.ai_verification_score}/100
+                                    </span>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            {isAdminOrPolice && (
+                              <div className="dc-card-actions">
+                                {editingIds[c.id] ? (
+                                  <>
+                                    {/* Approve / Reject — admin only */}
+                                    {user.role === 'admin' && (
+                                      <select
+                                        value={getEdit(c).review}
+                                        onChange={e => setEdit(c.id, { review: e.target.value })}
+                                        className="db-status-select"
+                                        aria-label="Approve or reject"
+                                      >
+                                        <option value="">Approve / Reject</option>
+                                        <option value="approve">✓ Approve</option>
+                                        <option value="reject">✗ Reject</option>
+                                      </select>
+                                    )}
+
+                                    {/* Close option — admin can close but NOT mark as found */}
+                                    {user.role === 'admin' && (
+                                      <>
+                                        <select
+                                          value={getEdit(c).found}
+                                          onChange={e => setEdit(c.id, { found: e.target.value })}
+                                          className="db-status-select"
+                                          aria-label="Close status"
+                                        >
+                                          <option value="not_found">Keep Active</option>
+                                          <option value="closed">Close Case</option>
+                                        </select>
+                                        {getEdit(c).found === 'closed' && (
+                                          <textarea
+                                            value={getEdit(c).closeReason || ''}
+                                            onChange={e => setEdit(c.id, { closeReason: e.target.value })}
+                                            className="db-status-select"
+                                            placeholder="Reason for closing (required)..."
+                                            rows={3}
+                                            style={{ resize: 'vertical', fontSize: 13 }}
+                                            required
+                                          />
+                                        )}
+                                      </>
+                                    )}
+
+                                    <div className="dc-card-actions-btns">
+                                      <button
+                                        className="btn small"
+                                        style={{ background: '#16a34a', color: '#fff', borderRadius: 999, padding: '8px 18px' }}
+                                        onClick={() => saveCard(c)}
+                                        disabled={savingId === c.id}
+                                      >
+                                        {savingId === c.id ? '...' : 'Save'}
+                                      </button>
+                                      <button
+                                        className="db-mini-btn"
+                                        style={{ background: '#f3f4f6', color: '#374151' }}
+                                        onClick={() => {
+                                          setEditingIds(prev => { const n = { ...prev }; delete n[c.id]; return n; });
+                                          setPendingEdits(prev => { const n = { ...prev }; delete n[c.id]; return n; });
+                                        }}
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        className="db-mini-btn"
+                                        style={{ background: expandedAudit[c.id] ? '#e0f2fe' : '#f0f9ff', color: '#0369a1' }}
+                                        onClick={() => toggleHistory(c.id)}
+                                      >
+                                        History
+                                      </button>
+                                      {user.role === 'admin' && (
+                                        <button className="btn small danger" style={{ borderRadius: 999, padding: '8px 18px' }} onClick={() => deleteCase(c.id)}>Delete</button>
+                                      )}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="dc-card-actions-btns">
+                                    <button
+                                      className="db-mini-btn"
+                                      style={{ background: '#eff6ff', color: '#1d4ed8' }}
+                                      onClick={() => setEditingIds(prev => ({ ...prev, [c.id]: true }))}
+                                    >
+                                      ✎ Edit
+                                    </button>
+                                    <button
+                                      className="db-mini-btn"
+                                      style={{ background: expandedAudit[c.id] ? '#e0f2fe' : '#f0f9ff', color: '#0369a1' }}
+                                      onClick={() => toggleHistory(c.id)}
+                                    >
+                                      History
+                                    </button>
+                                    {/* Admin: NO Mark as Found button — police only */}
+                                    {user.role === 'admin' && (
+                                      <button className="btn small danger" style={{ borderRadius: 999, padding: '8px 18px' }} onClick={() => deleteCase(c.id)}>Delete</button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {expandedAudit[c.id] && (
+                            <div className="dc-history-panel">
+                              <div className="dc-history-title">Sighting History</div>
+                              {!auditHistory[c.id] ? (
+                                <p className="muted">Loading...</p>
+                              ) : auditHistory[c.id].length === 0 ? (
+                                <p className="muted">No sightings reported yet.</p>
+                              ) : (
+                                <div className="dc-history-list">
+                                  {auditHistory[c.id].map((s, i) => (
+                                    <div key={s.id || i} className="dc-history-item">
+                                      {s.image_url && <img src={s.image_url} alt="sighting" className="dc-history-img" />}
+                                      <div className="dc-history-body">
+                                        <div className="dc-history-row">
+                                          <span className={`badge ${s.status}`}>{s.status}</span>
+                                          <span className="muted" style={{ fontSize: 12 }}>{formatDate(s.created_at)}</span>
+                                        </div>
+                                        <div className="dc-history-location">Location: {s.location_text || 'Not specified'}</div>
+                                        <div className="dc-history-desc">{s.description}</div>
+                                        {s.status === 'pending' && (
+                                          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                            <button className="db-mini-btn verify" onClick={() => approveSighting(s.id)}>Approve</button>
+                                            <button className="db-mini-btn reject" onClick={() => rejectSighting(s.id)}>Reject</button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
-                        {isAdminOrPolice && (
-                          <div className="dc-card-actions">
-                            {editingIds[c.id] ? (
-                              <>
-                                {/* Dropdown 1: Approve / Reject — admin only */}
-                                {user.role === 'admin' && (
-                                  <select
-                                    value={getEdit(c).review}
-                                    onChange={e => setEdit(c.id, { review: e.target.value })}
-                                    className="db-status-select"
-                                    aria-label="Approve or reject"
-                                  >
-                                    <option value="">Approve / Reject</option>
-                                    <option value="approve">✓ Approve</option>
-                                    <option value="reject">✗ Reject</option>
-                                  </select>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Found Cases History — admin only, shown below active cases */}
+                  {user.role === 'admin' && foundCasesList.length > 0 && (
+                    <div style={{ marginTop: 36 }}>
+                      <h3 style={{ marginBottom: 16, color: '#15803d', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        ✅ Found Cases History
+                        <span style={{ fontSize: 13, fontWeight: 400, color: '#6b7280', background: '#dcfce7', borderRadius: 999, padding: '2px 10px' }}>
+                          {foundCasesList.length} case{foundCasesList.length !== 1 ? 's' : ''}
+                        </span>
+                      </h3>
+                      <div className="dc-card-grid">
+                        {foundCasesList.map(c => (
+                          <div key={c.id} className="dc-case-card-wrap">
+                            <div className="dc-case-card" style={{ borderLeft: '4px solid #16a34a', opacity: 0.92 }}>
+                              <div className="dc-card-photo">
+                                <img src={c.images?.[0] || 'https://placehold.co/80x80?text=?'} alt={c.name} />
+                              </div>
+                              <div className="dc-card-header">
+                                <Link to={`/cases/${c.id}`} className="dc-card-name">{c.name}</Link>
+                                <span className="badge found">found</span>
+                                <div className="dc-card-meta">
+                                  {c.age && <span>Age: <b>{c.age}</b></span>}
+                                  {c.gender && <span>{c.gender}</span>}
+                                  {c.height && <span>{c.height}</span>}
+                                </div>
+                                {c.description && (
+                                  <p className="dc-card-desc">{c.description.slice(0, 80)}{c.description.length > 80 ? '...' : ''}</p>
                                 )}
-
-                                {/* Dropdown 2: Found status — admin & police */}
-                                <select
-                                  value={getEdit(c).found}
-                                  onChange={e => setEdit(c.id, { found: e.target.value })}
-                                  className="db-status-select"
-                                  aria-label="Found status"
-                                >
-                                  <option value="not_found">Not Found</option>
-                                  <option value="found">Found</option>
-                                  <option value="closed">Closed</option>
-                                </select>
-
-                                {/* Close reason — required when "closed" is selected */}
-                                {getEdit(c).found === 'closed' && (
-                                  <textarea
-                                    value={getEdit(c).closeReason || ''}
-                                    onChange={e => setEdit(c.id, { closeReason: e.target.value })}
-                                    className="db-status-select"
-                                    placeholder="Reason for closing (required)..."
-                                    rows={3}
-                                    style={{ resize: 'vertical', fontSize: 13 }}
-                                    required
-                                  />
+                              </div>
+                              <div className="dc-card-info">
+                                <div className="dc-card-row">
+                                  <span className="dc-card-label">Last Seen</span>
+                                  <span className="dc-card-value">{c.last_seen_location || '--'}</span>
+                                </div>
+                                {c.last_seen_time && (
+                                  <div className="dc-card-row">
+                                    <span className="dc-card-label">Last Seen Time</span>
+                                    <span className="dc-card-value">{formatDate(c.last_seen_time)}</span>
+                                  </div>
                                 )}
-
+                                <div className="dc-card-row">
+                                  <span className="dc-card-label">Reporter</span>
+                                  <span className="dc-card-value">
+                                    {c.reporter_name || '--'}
+                                    {c.reporter_phone && <span className="muted"> · {c.reporter_phone}</span>}
+                                  </span>
+                                </div>
+                                {c.reporter_relation && (
+                                  <div className="dc-card-row">
+                                    <span className="dc-card-label">Relation</span>
+                                    <span className="dc-card-value">{c.reporter_relation}</span>
+                                  </div>
+                                )}
+                                <div className="dc-card-row">
+                                  <span className="dc-card-label">Case Closed</span>
+                                  <span className="dc-card-value">{formatDate(c.updated_at)}</span>
+                                </div>
+                              </div>
+                              <div className="dc-card-actions">
                                 <div className="dc-card-actions-btns">
-                                  <button
-                                    className="btn small"
-                                    style={{ background: '#16a34a', color: '#fff', borderRadius: 999, padding: '8px 18px' }}
-                                    onClick={() => saveCard(c)}
-                                    disabled={savingId === c.id}
-                                  >
-                                    {savingId === c.id ? '...' : 'Save'}
-                                  </button>
-                                  <button
-                                    className="db-mini-btn"
-                                    style={{ background: '#f3f4f6', color: '#374151' }}
-                                    onClick={() => {
-                                      setEditingIds(prev => { const n = { ...prev }; delete n[c.id]; return n; });
-                                      setPendingEdits(prev => { const n = { ...prev }; delete n[c.id]; return n; });
-                                    }}
-                                  >
-                                    Cancel
-                                  </button>
                                   <button
                                     className="db-mini-btn"
                                     style={{ background: expandedAudit[c.id] ? '#e0f2fe' : '#f0f9ff', color: '#0369a1' }}
@@ -501,130 +645,49 @@ export default function Dashboard() {
                                   >
                                     History
                                   </button>
-                                  {user.role === 'admin' && (
-                                    <button className="btn small danger" style={{ borderRadius: 999, padding: '8px 18px' }} onClick={() => deleteCase(c.id)}>Delete</button>
-                                  )}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="dc-card-actions-btns">
-                                <button
-                                  className="db-mini-btn"
-                                  style={{ background: '#eff6ff', color: '#1d4ed8' }}
-                                  onClick={() => setEditingIds(prev => ({ ...prev, [c.id]: true }))}
-                                >
-                                  ✎ Edit
-                                </button>
-                                <button
-                                  className="db-mini-btn"
-                                  style={{ background: expandedAudit[c.id] ? '#e0f2fe' : '#f0f9ff', color: '#0369a1' }}
-                                  onClick={() => toggleHistory(c.id)}
-                                >
-                                  History
-                                </button>
-                                {/* Req 4.1 / 4.6: Mark as Found button or View Found Photo link */}
-                                {c.status !== 'found' ? (
-                                  <button
-                                    className="db-mini-btn"
-                                    style={{ background: '#dcfce7', color: '#15803d', fontWeight: 700 }}
-                                    onClick={() => setFoundUploadOpen(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
-                                  >
-                                    📷 Mark as Found
-                                  </button>
-                                ) : (
                                   <Link
                                     to={`/cases/${c.id}`}
                                     className="db-mini-btn"
                                     style={{ background: '#f0fdf4', color: '#16a34a', textDecoration: 'none', display: 'inline-block' }}
                                   >
-                                    🔍 View Found Photo
+                                    🔍 View Details
                                   </Link>
-                                )}
-                                {user.role === 'admin' && (
                                   <button className="btn small danger" style={{ borderRadius: 999, padding: '8px 18px' }} onClick={() => deleteCase(c.id)}>Delete</button>
-                                )}
-                              </div>
-                            )}
-                            {/* Req 4.2 / 4.3 / 4.4 / 4.5: inline upload form */}
-                            {foundUploadOpen[c.id] && c.status !== 'found' && (
-                              <div style={{ marginTop: 12, padding: '14px 16px', background: '#f0fdf4', borderRadius: 10, border: '1.5px solid #86efac' }}>
-                                <p style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 14, color: '#15803d' }}>
-                                  Upload Found-Person Photo
-                                </p>
-                                <input
-                                  type="file"
-                                  accept="image/jpeg,image/png,image/webp"
-                                  style={{ display: 'block', marginBottom: 8 }}
-                                  onChange={e => {
-                                    setFoundUploadFile(prev => ({ ...prev, [c.id]: e.target.files?.[0] || null }));
-                                    setFoundUploadError(prev => ({ ...prev, [c.id]: '' }));
-                                  }}
-                                />
-                                {foundUploadError[c.id] && (
-                                  <p style={{ color: '#dc2626', fontSize: 13, margin: '0 0 8px' }}>
-                                    {foundUploadError[c.id]}
-                                  </p>
-                                )}
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                  <button
-                                    className="btn small"
-                                    style={{ background: '#16a34a', color: '#fff', borderRadius: 999, padding: '7px 16px' }}
-                                    disabled={foundUploading[c.id]}
-                                    onClick={() => submitFoundPhoto(c.id)}
-                                  >
-                                    {foundUploading[c.id] ? 'Uploading...' : 'Submit'}
-                                  </button>
-                                  <button
-                                    className="db-mini-btn"
-                                    style={{ background: '#f3f4f6', color: '#374151' }}
-                                    onClick={() => {
-                                      setFoundUploadOpen(prev => ({ ...prev, [c.id]: false }));
-                                      setFoundUploadError(prev => ({ ...prev, [c.id]: '' }));
-                                    }}
-                                  >
-                                    Cancel
-                                  </button>
                                 </div>
+                              </div>
+                            </div>
+                            {expandedAudit[c.id] && (
+                              <div className="dc-history-panel">
+                                <div className="dc-history-title">Sighting History</div>
+                                {!auditHistory[c.id] ? (
+                                  <p className="muted">Loading...</p>
+                                ) : auditHistory[c.id].length === 0 ? (
+                                  <p className="muted">No sightings reported yet.</p>
+                                ) : (
+                                  <div className="dc-history-list">
+                                    {auditHistory[c.id].map((s, i) => (
+                                      <div key={s.id || i} className="dc-history-item">
+                                        {s.image_url && <img src={s.image_url} alt="sighting" className="dc-history-img" />}
+                                        <div className="dc-history-body">
+                                          <div className="dc-history-row">
+                                            <span className={`badge ${s.status}`}>{s.status}</span>
+                                            <span className="muted" style={{ fontSize: 12 }}>{formatDate(s.created_at)}</span>
+                                          </div>
+                                          <div className="dc-history-location">Location: {s.location_text || 'Not specified'}</div>
+                                          <div className="dc-history-desc">{s.description}</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-                        )}
+                        ))}
                       </div>
-                      {expandedAudit[c.id] && (
-                        <div className="dc-history-panel">
-                          <div className="dc-history-title">Sighting History</div>
-                          {!auditHistory[c.id] ? (
-                            <p className="muted">Loading...</p>
-                          ) : auditHistory[c.id].length === 0 ? (
-                            <p className="muted">No sightings reported yet.</p>
-                          ) : (
-                            <div className="dc-history-list">
-                              {auditHistory[c.id].map((s, i) => (
-                                <div key={s.id || i} className="dc-history-item">
-                                  {s.image_url && <img src={s.image_url} alt="sighting" className="dc-history-img" />}
-                                  <div className="dc-history-body">
-                                    <div className="dc-history-row">
-                                      <span className={`badge ${s.status}`}>{s.status}</span>
-                                      <span className="muted" style={{ fontSize: 12 }}>{formatDate(s.created_at)}</span>
-                                    </div>
-                                    <div className="dc-history-location">Location: {s.location_text || 'Not specified'}</div>
-                                    <div className="dc-history-desc">{s.description}</div>
-                                    {s.status === 'pending' && (
-                                      <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                                        <button className="db-mini-btn verify" onClick={() => approveSighting(s.id)}>Approve</button>
-                                        <button className="db-mini-btn reject" onClick={() => rejectSighting(s.id)}>Reject</button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </>
           )}

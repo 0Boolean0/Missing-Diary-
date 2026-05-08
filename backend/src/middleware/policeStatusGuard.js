@@ -1,10 +1,9 @@
 /**
  * Middleware: policeStatusGuard
  *
- * Enforces that police officers may only set case status to 'found' or 'active'.
+ * Enforces that police officers may only set case status to 'active' via PATCH /status.
+ * Police cannot directly set 'found' — that must go through the found-photo upload endpoint.
  * Admin role passes through unchanged.
- *
- * Validates: Requirements 2.3
  */
 export function policeStatusGuard(req, res, next) {
   // Admin passes through without restriction
@@ -12,11 +11,12 @@ export function policeStatusGuard(req, res, next) {
     return next();
   }
 
-  // Police may only submit 'found' or 'active'
+  // Police may only set 'active' via this endpoint
+  // 'found' must be set through POST /cases/:id/found-photo (photo upload)
   const { status } = req.body;
-  if (status === 'found' || status === 'active') {
+  if (status === 'active') {
     return next();
   }
 
-  return res.status(403).json({ message: 'Police may only set status to found or active' });
+  return res.status(403).json({ message: 'Police may only set status to active via this endpoint. To mark as found, upload a found-person photo.' });
 }
