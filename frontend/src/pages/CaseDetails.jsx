@@ -6,7 +6,6 @@ import MapView from '../components/MapView';
 import { api } from '../api/client';
 import { useLang } from '../context/LangContext';
 import { useAuth } from '../context/AuthContext';
-import { startTracking, stopTracking } from '../utils/locationTracker';
 
 const TIMELINE_ENTRY_FORM_INITIAL = { entry_time: '', location_text: '', lat: '', lng: '', notes: '' };
 
@@ -19,8 +18,8 @@ export default function CaseDetails() {
   const [matches, setMatches] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [loadingMatch, setLoadingMatch] = useState(false);
-  const [isTracking, setIsTracking] = useState(false);
   const [locationTrail, setLocationTrail] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
   // Task 18.1: timeline entries state
   const [timelineEntries, setTimelineEntries] = useState([]);
   // Task 18.2: add timeline entry form state
@@ -37,11 +36,16 @@ export default function CaseDetails() {
       .catch(err => setError(err.response?.data?.message || 'Failed to load case. You may not have permission to view it.'));
   }, [id]);
 
-  // Stop tracking when the component unmounts to prevent memory leaks
+  // Auto-locate user's device position on mount
   useEffect(() => {
-    return () => {
-      stopTracking();
-    };
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => { /* permission denied or unavailable — silently ignore */ },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   }, []);
 
   // Task 18.1: Fetch case timeline entries on mount
@@ -94,15 +98,7 @@ export default function CaseDetails() {
     setLoadingMatch(false);
   }
 
-  function handleTrackingToggle() {
-    if (isTracking) {
-      stopTracking();
-      setIsTracking(false);
-    } else {
-      startTracking(id, (coord) => api.post(`/cases/${id}/location`, coord));
-      setIsTracking(true);
-    }
-  }
+  // (live tracking removed — device auto-locates on mount)
 
   // Task 18.2: Submit a new timeline entry
   async function handleTimelineSubmit(e) {
@@ -158,8 +154,14 @@ export default function CaseDetails() {
       lat: e.lat, lng: e.lng,
       title: `Timeline: ${e.location_text}`,
       description: e.notes || e.location_text
-    }))
+    })),
+    // Auto-located user position
+    ...(userLocation ? [{ lat: userLocation.lat, lng: userLocation.lng, title: 'Your location', description: 'Your current device location' }] : [])
   ];
+
+  const mapCenter = userLocation
+    ? [userLocation.lat, userLocation.lng]
+    : [item.last_seen_lat, item.last_seen_lng];
 
   return (
     <>
@@ -291,9 +293,6 @@ export default function CaseDetails() {
                   {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
                 </button>
               )}
-              <button className="btn outline" onClick={runAIMatch} disabled={loadingMatch}>
-                {loadingMatch ? t('case.ai_matching') : t('case.ai_match')}
-              </button>
             </div>
           </section>
         </div>
@@ -365,22 +364,7 @@ export default function CaseDetails() {
         )}
 
         <h2>Last Seen Location & Verified Sightings</h2>
-        {isOwnerOrGuardian && (
-          <div className="live-tracking-section">
-            <button
-              className={isTracking ? 'btn danger small' : 'btn small'}
-              onClick={handleTrackingToggle}
-            >
-              {isTracking ? 'Disable Live Tracking' : 'Enable Live Tracking'}
-            </button>
-            {isTracking && (
-              <span className="live-tracking-indicator">
-                Live tracking active
-              </span>
-            )}
-          </div>
-        )}
-        <MapView center={[item.last_seen_lat, item.last_seen_lng]} markers={markers} polyline={locationTrail} />
+        <MapView center={mapCenter} markers={markers} polyline={locationTrail} />
 
         <h2>{t('case.timeline_title')}</h2>
         {/* Task 18.1: Display case timeline entries from the API */}
@@ -447,7 +431,28 @@ export default function CaseDetails() {
                       ? [{ lat: Number(timelineForm.lat), lng: Number(timelineForm.lng), title: 'Selected location', description: timelineForm.location_text || '' }]
                       : []
                   }
-                  onPick={latlng => setTimelineForm(f => ({ ...f, lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) }))}
+                  onPick={async latlng => {
+                    const lat = latlng.lat.toFixed(6);
+                    const lng = latlng.lng.toFixed(6);
+                    setTimelineForm(f => ({ ...f, lat, lng }));
+                    try {
+                      const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+                        { headers: { 'Accept-Language': 'en' } }
+                      );
+                      const data = await res.json();
+                      const addr = data.address || {};
+                      const locationText =
+                        [addr.suburb || addr.neighbourhood, addr.city || addr.town || addr.village, addr.country]
+                          .filter(Boolean)
+                          .join(', ');
+                      if (locationText) {
+                        setTimelineForm(f => ({ ...f, lat, lng, location_text: locationText }));
+                      }
+                    } catch {
+                      // reverse geocode failed silently, user can type manually
+                    }
+                  }}
                   height={220}
                 />
                 {timelineForm.lat && timelineForm.lng && (

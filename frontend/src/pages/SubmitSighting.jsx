@@ -98,14 +98,12 @@ export default function SubmitSighting() {
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#eafaf1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <h2 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 800 }}>Sighting Submitted!</h2>
-          <p style={{ color: 'var(--muted)', marginBottom: 28 }}>
-            Thank you for helping. Your report has been received and will be reviewed by our team.
-          </p>
+          <h2 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 800 }}>{t('ss.success_title')}</h2>
+          <p style={{ color: 'var(--muted)', marginBottom: 28 }}>{t('ss.success_sub')}</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link className="btn" to="/cases">View All Cases</Link>
+            <Link className="btn" to="/cases">{t('ss.view_cases')}</Link>
             <button className="btn outline" onClick={() => { setSubmitted(false); setForm({ missing_person_id: '', location_text: '', description: '', confidence_level: 'maybe', reporter_name: '', reporter_phone: '' }); setImage(null); setAnonymous(true); }}>
-              Submit Another
+              {t('ss.submit_another')}
             </button>
           </div>
         </main>
@@ -124,12 +122,9 @@ export default function SubmitSighting() {
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eafaf1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Report a Sighting</h1>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t('ss.header_title')}</h1>
           </div>
-          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
-            Did you see someone who might be missing? Share what you know — every detail helps reunite families.
-            No account needed.
-          </p>
+          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>{t('ss.header_sub')}</p>
         </div>
 
         {/* Identity toggle */}
@@ -139,8 +134,8 @@ export default function SubmitSighting() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
             </span>
             <div>
-              <b>Stay Anonymous</b>
-              <p>Submit without revealing your identity</p>
+              <b>{t('ss.anon')}</b>
+              <p>{t('ss.anon_sub')}</p>
             </div>
           </div>
           <div className={`anon-option ${!anonymous ? 'active' : ''}`} onClick={() => setAnonymous(false)}>
@@ -148,8 +143,8 @@ export default function SubmitSighting() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </span>
             <div>
-              <b>Share Contact</b>
-              <p>Provide name &amp; phone for follow-up</p>
+              <b>{t('ss.contact')}</b>
+              <p>{t('ss.contact_sub')}</p>
             </div>
           </div>
         </div>
@@ -162,14 +157,14 @@ export default function SubmitSighting() {
           {/* Select person */}
           <div>
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-              Who did you see? <span style={{ color: 'var(--danger)' }}>*</span>
+              {t('ss.who')} <span style={{ color: 'var(--danger)' }}>*</span>
             </label>
             <select
               value={form.missing_person_id}
               onChange={e => setForm({ ...form, missing_person_id: e.target.value })}
               required
             >
-              <option value="">Select a missing person...</option>
+              <option value="">{t('ss.who_placeholder')}</option>
               {cases.map(c => (
                 <option key={c.id} value={c.id}>{c.name} — {c.last_seen_location}</option>
               ))}
@@ -180,7 +175,7 @@ export default function SubmitSighting() {
           {!anonymous && (
             <div className="form-row-2">
               <div>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Your Name (optional)</label>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>{t('ss.your_name')}</label>
                 <input
                   value={form.reporter_name}
                   onChange={e => setForm({ ...form, reporter_name: e.target.value })}
@@ -188,7 +183,7 @@ export default function SubmitSighting() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Phone Number (optional)</label>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 13 }}>{t('ss.your_phone')}</label>
                 <input
                   value={form.reporter_phone}
                   onChange={e => setForm({ ...form, reporter_phone: e.target.value })}
@@ -201,13 +196,13 @@ export default function SubmitSighting() {
           {/* Location */}
           <div>
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-              Where did you see them? <span style={{ color: 'var(--danger)' }}>*</span>
+              {t('ss.where')} <span style={{ color: 'var(--danger)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 value={form.location_text}
                 onChange={handleLocationText}
-                placeholder="Type a location (e.g. Mirpur 10, Dhaka) or pin on map below"
+                placeholder={t('ss.where_placeholder')}
                 style={{ paddingRight: geocoding ? 36 : undefined }}
                 required
               />
@@ -217,9 +212,7 @@ export default function SubmitSighting() {
                 </span>
               )}
             </div>
-            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0 8px' }}>
-              Or click on the map to pin the exact location
-            </p>
+            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0 8px' }}>{t('ss.map_hint')}</p>
             <MapView
               center={[pos.lat, pos.lng]}
               markers={[{ lat: pos.lat, lng: pos.lng, title: 'Sighting location' }]}
@@ -234,34 +227,34 @@ export default function SubmitSighting() {
           {/* Description */}
           <div>
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-              What did you observe? <span style={{ color: 'var(--danger)' }}>*</span>
+              {t('ss.what')} <span style={{ color: 'var(--danger)' }}>*</span>
             </label>
             <textarea
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
-              placeholder="Describe what you saw — clothing, direction they were heading, who they were with, their condition..."
+              placeholder={t('ss.what_placeholder')}
               required
             />
           </div>
 
           {/* Confidence */}
           <div>
-            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>How confident are you?</label>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{t('ss.confidence')}</label>
             <select
               value={form.confidence_level}
               onChange={e => setForm({ ...form, confidence_level: e.target.value })}
             >
-              <option value="sure">Very confident — I'm sure it's them</option>
-              <option value="maybe">Somewhat confident — Could be them</option>
-              <option value="not_sure">Not sure — Just reporting what I saw</option>
+              <option value="sure">{t('ss.conf_sure')}</option>
+              <option value="maybe">{t('ss.conf_maybe')}</option>
+              <option value="not_sure">{t('ss.conf_not_sure')}</option>
             </select>
           </div>
 
           {/* Photo */}
           <div>
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-              Attach a photo
-              <span style={{ fontWeight: 400, color: 'var(--muted)', marginLeft: 6 }}>(required — helps verify the sighting)</span>
+              {t('ss.photo')}
+              <span style={{ fontWeight: 400, color: 'var(--muted)', marginLeft: 6 }}>{t('ss.photo_sub')}</span>
             </label>
             <div style={{ border: '2px dashed var(--border)', borderRadius: 10, padding: '16px 20px', background: 'var(--bg)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -275,7 +268,7 @@ export default function SubmitSighting() {
           {anonymous && (
             <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#0369a1', display: 'flex', alignItems: 'center', gap: 8 }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              You are submitting anonymously. Your identity will not be recorded.
+              {t('ss.anon_note')}
             </div>
           )}
 
@@ -283,12 +276,12 @@ export default function SubmitSighting() {
             {submitting ? (
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-                Submitting...
+                {t('ss.submitting')}
               </span>
             ) : (
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Submit Sighting Report
+                {t('ss.submit')}
               </span>
             )}
           </button>

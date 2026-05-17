@@ -34,7 +34,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="/cases" element={<MissingCases />} />
               <Route path="/cases/:id" element={<CaseDetails />} />
               <Route path="/sightings" element={<Sightings />} />
-              <Route path="/sighting/:id?" element={<ProtectedRoute><SubmitSighting /></ProtectedRoute>} />
+              <Route path="/sighting/:id?" element={<SubmitSighting />} />
               <Route path="/report" element={<ProtectedRoute><ReportCase /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             </Routes>

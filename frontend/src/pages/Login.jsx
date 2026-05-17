@@ -39,16 +39,16 @@ export default function Login() {
             <img src={logoGif} alt="Missing Diary" className="auth-logo-img" />
           </Link>
           <div className="auth-left-body">
-            <h2>Every Second Counts.</h2>
-            <p>Bangladesh's unified missing persons alert platform. Help reunite families and protect lives.</p>
+            <h2>{t('login.left_title')}</h2>
+            <p>{t('login.left_sub')}</p>
             <div className="auth-left-stats">
               <div className="auth-left-stat">
                 <span className="auth-stat-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </span>
                 <div>
-                  <b>Instant Alerts</b>
-                  <p>Reports go live immediately</p>
+                  <b>{t('login.stat1_title')}</b>
+                  <p>{t('login.stat1_desc')}</p>
                 </div>
               </div>
               <div className="auth-left-stat">
@@ -56,8 +56,8 @@ export default function Login() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 </span>
                 <div>
-                  <b>Secure &amp; Private</b>
-                  <p>Your data is always protected</p>
+                  <b>{t('login.stat2_title')}</b>
+                  <p>{t('login.stat2_desc')}</p>
                 </div>
               </div>
               <div className="auth-left-stat">
@@ -65,13 +65,13 @@ export default function Login() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </span>
                 <div>
-                  <b>Community Driven</b>
-                  <p>Thousands helping together</p>
+                  <b>{t('login.stat3_title')}</b>
+                  <p>{t('login.stat3_desc')}</p>
                 </div>
               </div>
             </div>
           </div>
-          <p className="auth-left-footer">© 2026 Missing Diary. All rights reserved.</p>
+          <p className="auth-left-footer">{t('login.footer')}</p>
         </div>
       </div>
 
@@ -84,6 +84,23 @@ export default function Login() {
             </div>
             <h1>{t('login.title')}</h1>
             <p>{t('login.sub')}</p>
+          </div>
+
+          {/* Notice below welcome */}
+          <div style={{
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: 10,
+            padding: '10px 14px',
+            fontSize: 13,
+            color: '#166534',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 4,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {t('login.notice')}
           </div>
 
           {redirect !== '/dashboard' && (
@@ -153,24 +170,24 @@ export default function Login() {
               {loading ? t('login.signing_in') : t('login.submit')}
             </button>
 
-            {/* 3.3.1 — Remember me checkbox (always checked, localStorage handles persistence) */}
-            <label className="auth-remember-me">
-              <input type="checkbox" defaultChecked readOnly />
-              <span>Remember me</span>
-            </label>
           </form>
 
-          <div className="auth-divider"><span>or</span></div>
+          {/* 3.3.1 — Remember me checkbox (always checked, localStorage handles persistence) */}
+          <label className="auth-remember-me">
+            <input type="checkbox" defaultChecked readOnly />
+            <span>{t('login.remember')}</span>
+          </label>
 
-          <p className="auth-switch" style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
-            Admin or Police? Contact your system administrator for access.
+          <div className="auth-divider"><span>{t('login.or')}</span></div>
+
+          <p className="auth-switch">
+            {t('login.no_account_text')} <Link to="/register">{t('login.signup')}</Link>
           </p>
 
-          {import.meta.env.DEV && (
-            <div className="auth-hint">
-              <p>Test accounts: <code>admin@missingdiary.test</code> / <code>password123</code></p>
-            </div>
-          )}
+          <p className="auth-switch" style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
+            {t('login.admin_note')}
+          </p>
+
         </div>
       </div>
     </div>

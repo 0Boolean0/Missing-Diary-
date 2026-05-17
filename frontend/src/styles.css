@@ -2926,11 +2926,31 @@ th {
   }
 }
 
+/* Remember me + Divider row */
+.auth-remember-me {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  margin: 14px 0 0 0;
+}
+
+.auth-remember-me input[type='checkbox'] {
+  accent-color: var(--green);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
 /* Divider */
 .auth-divider {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
   margin: 18px 0;
   color: var(--muted);
   font-size: 13px;

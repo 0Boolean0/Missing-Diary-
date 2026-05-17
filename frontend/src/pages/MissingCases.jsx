@@ -7,7 +7,6 @@ import { api } from '../api/client';
 import { useLang } from '../context/LangContext';
 
 const STATUSES = ['all', 'active', 'verified', 'pending', 'found', 'closed'];
-const GENDERS  = ['All Genders', 'Male', 'Female'];
 
 function getDistricts(cases) {
   const set = new Set();
@@ -18,7 +17,7 @@ function getDistricts(cases) {
       if (last) set.add(last);
     }
   });
-  return ['All Districts', ...Array.from(set).sort()];
+  return Array.from(set).sort();
 }
 
 export default function MissingCases() {
@@ -26,8 +25,8 @@ export default function MissingCases() {
   const [searchParams]                = useSearchParams();
   const [search, setSearch]           = useState(searchParams.get('q') || '');
   const [status, setStatus]           = useState('all');
-  const [gender, setGender]           = useState('All Genders');
-  const [district, setDistrict]       = useState('All Districts');
+  const [gender, setGender]           = useState('all');
+  const [district, setDistrict]       = useState('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [view, setView]               = useState('grid');
   const { t } = useLang();
@@ -42,8 +41,8 @@ export default function MissingCases() {
     const matchSearch   = [c.name, c.last_seen_location, c.gender, String(c.age || ''), c.case_id || '']
       .join(' ').toLowerCase().includes(search.toLowerCase());
     const matchStatus   = status === 'all' || c.status === status;
-    const matchGender   = gender === 'All Genders' || c.gender?.toLowerCase() === gender.toLowerCase();
-    const matchDistrict = district === 'All Districts' ||
+    const matchGender   = gender === 'all' || c.gender?.toLowerCase() === gender.toLowerCase();
+    const matchDistrict = district === 'all' ||
       c.last_seen_location?.toLowerCase().includes(district.toLowerCase());
     return matchSearch && matchStatus && matchGender && matchDistrict;
   });
@@ -62,7 +61,7 @@ export default function MissingCases() {
           <div>
             <h1 className="mc-title">{t('cases.title')}</h1>
             <p className="mc-subtitle">
-              Search through <strong>{cases.length}</strong> active cases. Submit sightings to help reunite families.
+              {t('mc.subtitle').replace('{n}', cases.length)}
             </p>
           </div>
           <div className="mc-view-toggle">
@@ -116,7 +115,7 @@ export default function MissingCases() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
             </svg>
-            Filters
+            {t('mc.filters')}
             {(status !== 'all' || gender !== 'All Genders' || district !== 'All Districts') && (
               <span className="mc-filter-dot" />
             )}
@@ -126,25 +125,28 @@ export default function MissingCases() {
         {filtersOpen && (
           <div className="mc-filter-row">
             <select className="mc-select" value={district} onChange={e => setDistrict(e.target.value)}>
-              {districts.map(d => <option key={d}>{d}</option>)}
+              <option value="all">{t('mc.all_districts')}</option>
+              {districts.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             <select
               className="mc-select"
-              value={status === 'all' ? 'All Status' : status}
-              onChange={e => setStatus(e.target.value === 'All Status' ? 'all' : e.target.value)}
+              value={status}
+              onChange={e => setStatus(e.target.value)}
             >
-              <option>All Status</option>
+              <option value="all">{t('mc.all_status')}</option>
               {STATUSES.filter(s => s !== 'all').map(s => (
                 <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
               ))}
             </select>
             <select className="mc-select" value={gender} onChange={e => setGender(e.target.value)}>
-              {GENDERS.map(g => <option key={g}>{g}</option>)}
+              <option value="all">{t('mc.all_genders')}</option>
+              <option value="male">{t('mc.male')}</option>
+              <option value="female">{t('mc.female')}</option>
             </select>
           </div>
         )}
 
-        <p className="mc-count">Showing {filtered.length} of {cases.length} cases</p>
+        <p className="mc-count">{t('mc.showing').replace('{f}', filtered.length).replace('{t}', cases.length)}</p>
 
         {view === 'grid' && (
           filtered.length === 0

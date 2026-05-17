@@ -181,3 +181,63 @@ INSERT INTO users (name, email, password_hash, role, verified) VALUES
   ('Admin',          'admin@missingdiary.test',  '$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2', 'admin',  true),
   ('Police Officer', 'police@missingdiary.test', '$2b$10$QP7iDNJ8ybvx0kAALfL5QeGwYqtW7/9Ot5sUYf0oqB4QQ1QaEeAw2', 'police', true);
 -- password123
+
+-- ── Seed missing persons ──────────────────────────────────────
+INSERT INTO missing_persons (
+  reporter_name, reporter_phone, reporter_relation,
+  name, age, gender, skin_color, height, weight,
+  clothing, identifying_marks, medical_info, description,
+  last_seen_location, last_seen_lat, last_seen_lng, last_seen_time,
+  status
+) VALUES
+(
+  'Karim Uddin', '01711000001', 'Son',
+  'Hasina Khatun', 65, 'Female', 'Wheatish', '5.1 ft', '55 kg',
+  'White saree with blue border',
+  'Mole on left cheek',
+  'High blood pressure, takes daily medication',
+  'Left home for morning walk and did not return.',
+  'Narayanganj Sadar', 23.6238, 90.4990,
+  NOW() - INTERVAL '10 days',
+  'closed'
+),
+(
+  'Rafiq Islam', '01722000002', 'Father',
+  'Nusrat Jahan', 19, 'Female', 'Fair', '5.4 ft', '48 kg',
+  'Blue salwar kameez, white dupatta',
+  'Small scar on right hand',
+  NULL,
+  'Was returning from college and went missing near bus stop.',
+  'Uttara Sector 7, Dhaka', 23.8759, 90.3795,
+  NOW() - INTERVAL '5 days',
+  'active'
+),
+(
+  'Salma Begum', '01733000003', 'Wife',
+  'Jamal Uddin', 42, 'Male', 'Wheatish', '5.7 ft', '72 kg',
+  'White panjabi, grey lungi',
+  NULL,
+  'Has diabetes',
+  'Went to the market and did not return.',
+  'Karwan Bazar, Dhaka', 23.7516, 90.3930,
+  NOW() - INTERVAL '3 days',
+  'found'
+),
+(
+  'Nasrin Akter', '01744000004', 'Mother',
+  'Rahim Hossain', 14, 'Male', 'Dark', '4.9 ft', '40 kg',
+  'School uniform — white shirt, navy trousers',
+  'Birthmark on neck',
+  NULL,
+  'Did not come home after school. Last seen near school gate.',
+  'Mirpur 10, Dhaka', 23.8069, 90.3674,
+  NOW() - INTERVAL '2 days',
+  'active'
+);
+
+-- ── Seed person images ────────────────────────────────────────
+INSERT INTO person_images (missing_person_id, image_url) VALUES
+  ('missing-report_001', 'https://randomuser.me/api/portraits/women/65.jpg'),
+  ('missing-report_002', 'https://randomuser.me/api/portraits/women/44.jpg'),
+  ('missing-report_003', 'https://randomuser.me/api/portraits/men/42.jpg'),
+  ('missing-report_004', 'https://randomuser.me/api/portraits/men/14.jpg');

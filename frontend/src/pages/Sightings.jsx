@@ -92,17 +92,17 @@ export default function Sightings() {
             <div className="db-empty-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#27AE60" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h2>Sighting Submitted!</h2>
-            <p className="muted">Thank you. Your report has been received and will be reviewed by our team.</p>
+            <h2>{t('sightings.success_title')}</h2>
+            <p className="muted">{t('sightings.success_sub')}</p>
             <div className="row gap" style={{ justifyContent: 'center', marginTop: 16 }}>
               <button className="btn" onClick={() => {
                 setSubmitted(false);
                 setForm({ missing_person_id: '', location_text: '', description: '', confidence_level: 'maybe', reporter_name: '', reporter_phone: '' });
                 setImage(null);
               }}>
-                Submit Another
+                {t('sightings.submit_another')}
               </button>
-              <a className="btn outline" href="/cases">View Missing Cases</a>
+              <a className="btn outline" href="/cases">{t('sightings.view_cases')}</a>
             </div>
           </div>
         </main>
@@ -127,7 +127,7 @@ export default function Sightings() {
             </span>
             <div>
               <b>{t('sighting.anonymous')}</b>
-              <p>Submit without revealing your identity</p>
+              <p>{t('sightings.anon_sub')}</p>
             </div>
           </div>
           <div className={`anon-option ${!anonymous ? 'active' : ''}`} onClick={() => setAnonymous(false)}>
@@ -136,7 +136,7 @@ export default function Sightings() {
             </span>
             <div>
               <b>{t('sighting.with_contact')}</b>
-              <p>Provide name &amp; phone for follow-up</p>
+              <p>{t('sightings.contact_sub')}</p>
             </div>
           </div>
         </div>
@@ -152,14 +152,14 @@ export default function Sightings() {
           {/* Select missing person */}
           <div>
             <label style={{ display: 'block', marginBottom: 6, fontWeight: 600 }}>
-              Select Missing Person <span style={{ color: 'var(--red)' }}>*</span>
+              {t('sightings.select_person')} <span style={{ color: 'var(--red)' }}>*</span>
             </label>
             <select
               value={form.missing_person_id}
               onChange={e => setForm({ ...form, missing_person_id: e.target.value })}
               required
             >
-              <option value="">— Choose a case —</option>
+              <option value="">{t('sightings.choose_case')}</option>
               {cases.map(c => (
                 <option key={c.id} value={c.id}>{c.name} — {c.last_seen_location}</option>
               ))}
@@ -172,12 +172,12 @@ export default function Sightings() {
               <input
                 value={form.reporter_name}
                 onChange={e => setForm({ ...form, reporter_name: e.target.value })}
-                placeholder="Your name (optional)"
+                placeholder={t('sightings.your_name')}
               />
               <input
                 value={form.reporter_phone}
                 onChange={e => setForm({ ...form, reporter_phone: e.target.value })}
-                placeholder="Your phone number (optional)"
+                placeholder={t('sightings.your_phone')}
               />
             </div>
           )}
@@ -186,33 +186,33 @@ export default function Sightings() {
           <input
             value={form.location_text}
             onChange={e => setForm({ ...form, location_text: e.target.value })}
-            placeholder="Location name (e.g. Mirpur 10, Dhaka)"
+            placeholder={t('sightings.location_placeholder')}
           />
 
           {/* Description */}
           <textarea
             value={form.description}
             onChange={e => setForm({ ...form, description: e.target.value })}
-            placeholder="Describe what you saw — clothing, direction, who they were with..."
+            placeholder={t('sightings.desc_placeholder')}
             required
           />
 
           {/* Confidence level */}
           <div>
-            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Confidence Level</label>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{t('sightings.confidence')}</label>
             <select
               value={form.confidence_level}
               onChange={e => setForm({ ...form, confidence_level: e.target.value })}
             >
-              <option value="sure"> Sure — I'm confident it's them</option>
-              <option value="maybe">Maybe — Could be them</option>
-              <option value="not_sure">Not sure — Just reporting</option>
+              <option value="sure">{t('sightings.conf_sure')}</option>
+              <option value="maybe">{t('sightings.conf_maybe')}</option>
+              <option value="not_sure">{t('sightings.conf_not_sure')}</option>
             </select>
           </div>
 
           {/* Photo upload — required */}
           <div className="file-upload-box" style={imageError ? { border: '1px solid red' } : {}}>
-            <label>Attach a photo (required)</label>
+            <label>{t('sightings.photo_label')}</label>
             <input type="file" accept="image/*" onChange={e => { setImage(e.target.files[0]); setImageError(''); }} />
           </div>
           {imageError && <p className="error" style={{ color: 'red', marginTop: 4 }}>{imageError}</p>}
@@ -220,7 +220,7 @@ export default function Sightings() {
           {/* Map pin */}
           <div>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-              Pin the location on the map
+              {t('sightings.pin_map')}
             </label>
             <MapView
               center={[pos.lat, pos.lng]}
@@ -234,7 +234,7 @@ export default function Sightings() {
 
           {anonymous && (
             <div className="anon-notice">
-               You are submitting anonymously. Your identity will not be recorded.
+              {t('sightings.anon_notice')}
             </div>
           )}
 

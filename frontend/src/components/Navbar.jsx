@@ -36,7 +36,7 @@ export default function Navbar() {
 
   function handleReportClick(path) {
     setReportOpen(false);
-    nav(user ? path : `/login?redirect=${encodeURIComponent(path)}`);
+    nav(path);
   }
 
   const isActive = (path) => location.pathname === path;
@@ -77,11 +77,6 @@ export default function Navbar() {
                       <b>{t('nav.report_missing')}</b>
                       <p>Submit a new missing person case</p>
                     </div>
-                    {!user && (
-                      <span className="nav-lock">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                      </span>
-                    )}
                   </div>
                   <div className="nav-dropdown-item" onClick={() => handleReportClick('/sighting')}>
                     <span className="nav-dropdown-icon">
@@ -91,17 +86,7 @@ export default function Navbar() {
                       <b>{t('nav.submit_sighting')}</b>
                       <p>I saw someone who may be missing</p>
                     </div>
-                    {!user && (
-                      <span className="nav-lock">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                      </span>
-                    )}
                   </div>
-                  {!user && (
-                    <div className="nav-dropdown-footer">
-                      <Link to="/login" onClick={() => setReportOpen(false)}>{t('nav.login_to_submit')}</Link>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
